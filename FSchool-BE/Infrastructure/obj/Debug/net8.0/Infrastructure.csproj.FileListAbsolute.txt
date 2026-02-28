@@ -1,0 +1,17 @@
+D:\Mobile\FSchool-BE\Infrastructure\bin\Debug\net8.0\Infrastructure.deps.json
+D:\Mobile\FSchool-BE\Infrastructure\bin\Debug\net8.0\Infrastructure.dll
+D:\Mobile\FSchool-BE\Infrastructure\bin\Debug\net8.0\Infrastructure.pdb
+D:\Mobile\FSchool-BE\Infrastructure\bin\Debug\net8.0\Application.dll
+D:\Mobile\FSchool-BE\Infrastructure\bin\Debug\net8.0\Domain.dll
+D:\Mobile\FSchool-BE\Infrastructure\bin\Debug\net8.0\Application.pdb
+D:\Mobile\FSchool-BE\Infrastructure\bin\Debug\net8.0\Domain.pdb
+D:\Mobile\FSchool-BE\Infrastructure\obj\Debug\net8.0\Infrastructure.csproj.AssemblyReference.cache
+D:\Mobile\FSchool-BE\Infrastructure\obj\Debug\net8.0\Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+D:\Mobile\FSchool-BE\Infrastructure\obj\Debug\net8.0\Infrastructure.AssemblyInfoInputs.cache
+D:\Mobile\FSchool-BE\Infrastructure\obj\Debug\net8.0\Infrastructure.AssemblyInfo.cs
+D:\Mobile\FSchool-BE\Infrastructure\obj\Debug\net8.0\Infrastructure.csproj.CoreCompileInputs.cache
+D:\Mobile\FSchool-BE\Infrastructure\obj\Debug\net8.0\Infrastr.15EFFBFE.Up2Date
+D:\Mobile\FSchool-BE\Infrastructure\obj\Debug\net8.0\Infrastructure.dll
+D:\Mobile\FSchool-BE\Infrastructure\obj\Debug\net8.0\refint\Infrastructure.dll
+D:\Mobile\FSchool-BE\Infrastructure\obj\Debug\net8.0\Infrastructure.pdb
+D:\Mobile\FSchool-BE\Infrastructure\obj\Debug\net8.0\ref\Infrastructure.dll
