@@ -1,10 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "1r+UI8KK3AE=",
+  "dgSpecHash": "NuOEjf3m2dg=",
   "success": true,
-  "projectFilePath": "D:\\Mobile\\FSchool-BE\\Application\\Application.csproj",
+  "projectFilePath": "D:\\Mobile\\Git\\FSchool-BE\\Application\\Application.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\thang\\.nuget\\packages\\automapper\\13.0.1\\automapper.13.0.1.nupkg.sha512",
+    "C:\\Users\\thang\\.nuget\\packages\\bcrypt.net-next\\4.1.0\\bcrypt.net-next.4.1.0.nupkg.sha512",
     "C:\\Users\\thang\\.nuget\\packages\\fluentvalidation\\11.9.0\\fluentvalidation.11.9.0.nupkg.sha512",
     "C:\\Users\\thang\\.nuget\\packages\\fluentvalidation.dependencyinjectionextensions\\11.9.0\\fluentvalidation.dependencyinjectionextensions.11.9.0.nupkg.sha512",
     "C:\\Users\\thang\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\6.0.0\\microsoft.extensions.dependencyinjection.abstractions.6.0.0.nupkg.sha512",

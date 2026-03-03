@@ -9,6 +9,7 @@ import 'package:bai1/screens/login.dart';
 import 'package:bai1/screens/mark-report.dart';
 import 'package:bai1/screens/report.dart';
 import 'package:bai1/screens/schedule.dart';
+import 'package:bai1/screens/table-app.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -43,6 +44,7 @@ class MyApp extends StatelessWidget {
               ModalRoute.of(context)!.settings.arguments
                   as Map<String, dynamic>,
         ),
+        "/schedule-table": (context) => TableApp(),
       },
     );
   }

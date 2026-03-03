@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "ilTuIhUfaUY=",
+  "dgSpecHash": "kpMgj7gxfYA=",
   "success": true,
-  "projectFilePath": "D:\\Mobile\\FSchool-BE\\Infrastructure\\Infrastructure.csproj",
+  "projectFilePath": "D:\\Mobile\\Git\\FSchool-BE\\Infrastructure\\Infrastructure.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\thang\\.nuget\\packages\\automapper\\13.0.1\\automapper.13.0.1.nupkg.sha512",
     "C:\\Users\\thang\\.nuget\\packages\\azure.core\\1.25.0\\azure.core.1.25.0.nupkg.sha512",

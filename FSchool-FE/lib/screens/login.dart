@@ -1,7 +1,39 @@
+import 'package:bai1/controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _phoneController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _authController = AuthController();
+
+  Future<void> _handleLogin() async {
+    try {
+      final response = await _authController.login(
+        _phoneController.text.trim(),
+        _passwordController.text.trim(),
+      );
+
+      print(response.accessToken);
+
+      if (!mounted) return;
+
+      Navigator.pushNamed(context, '/home');
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Sai tài khoản hoặc mật khẩu")));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,6 +77,7 @@ class LoginScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     TextFormField(
+                      controller: _phoneController,
                       decoration: InputDecoration(
                         prefix: Icon(Icons.phone),
                         labelText: "Phone Number",
@@ -55,6 +88,7 @@ class LoginScreen extends StatelessWidget {
                     SizedBox(height: 10),
 
                     TextFormField(
+                      controller: _passwordController,
                       decoration: InputDecoration(
                         prefix: Icon(Icons.password),
                         labelText: "Password",
@@ -95,9 +129,7 @@ class LoginScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(6),
                           ),
                         ),
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/home');
-                        },
+                        onPressed: _handleLogin,
 
                         child: Text(
                           "Sign In",
@@ -114,5 +146,12 @@ class LoginScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _phoneController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 }

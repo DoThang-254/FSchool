@@ -14,11 +14,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Mobile\\FSchool-BE\\Domain\\Domain.csproj",
+      "projectUniqueName": "D:\\Mobile\\Git\\FSchool-BE\\Domain\\Domain.csproj",
       "projectName": "Domain",
-      "projectPath": "D:\\Mobile\\FSchool-BE\\Domain\\Domain.csproj",
+      "projectPath": "D:\\Mobile\\Git\\FSchool-BE\\Domain\\Domain.csproj",
       "packagesPath": "C:\\Users\\thang\\.nuget\\packages\\",
-      "outputPath": "D:\\Mobile\\FSchool-BE\\Domain\\obj\\",
+      "outputPath": "D:\\Mobile\\Git\\FSchool-BE\\Domain\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
