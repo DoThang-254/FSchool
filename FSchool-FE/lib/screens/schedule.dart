@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:bai1/widgets/custom_bottom_nav_bar.dart';
 import 'package:bai1/models/schedule.dart';
 import 'package:bai1/controllers/schedule_controller.dart';
+import 'package:intl/intl.dart';
+
 class ScheduleScreen extends StatefulWidget {
   const ScheduleScreen({super.key});
 
@@ -13,7 +15,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   // Ngày đang chọn (Mặc định là hôm nay)
   DateTime _selectedDate = DateTime.now();
 
-  // Danh sách các ngày trong tuần (Giả lập tuần hiện tại)
+  // Tuần hiện tại đang hiển thị
+  late DateTime _weekStart; // Monday
   late List<DateTime> _weekDays;
 
   final ScheduleController _controller = ScheduleController();
@@ -26,11 +29,10 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final args = ModalRoute.of(context)?.settings.arguments;
-    
+
     if (args is int) {
       _classId = args;
     } else if (args != null) {
-      // Assuming args is something that has classId or staffId (dynamic or AuthResponse)
       try {
         _classId = (args as dynamic).classId;
         _staffId = (args as dynamic).staffId;
@@ -38,38 +40,72 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         debugPrint("ScheduleScreen: Error parsing arguments: $e");
       }
     }
-    
-    debugPrint("ScheduleScreen: Fetching for classId: $_classId, staffId: $_staffId");
-    _fetchSchedules();
+
+    _fetchSchedulesForWeek();
   }
 
   @override
   void initState() {
     super.initState();
-    _generateWeekDays();
+    _setWeek(DateTime.now());
   }
 
-  Future<void> _fetchSchedules() async {
-    final schedules = await _controller.fetchSchedules(
+  /// Tính Monday của tuần chứa [date]
+  void _setWeek(DateTime date) {
+    // weekday: Monday=1, Sunday=7
+    _weekStart = date.subtract(Duration(days: date.weekday - 1));
+    _weekDays = List.generate(7, (i) => _weekStart.add(Duration(days: i)));
+  }
+
+  /// Chuyển sang tuần trước
+  void _goToPreviousWeek() {
+    setState(() {
+      _setWeek(_weekStart.subtract(const Duration(days: 7)));
+      _selectedDate = _weekDays[0];
+    });
+    _fetchSchedulesForWeek();
+  }
+
+  /// Chuyển sang tuần sau
+  void _goToNextWeek() {
+    setState(() {
+      _setWeek(_weekStart.add(const Duration(days: 7)));
+      _selectedDate = _weekDays[0];
+    });
+    _fetchSchedulesForWeek();
+  }
+
+  /// Về tuần hiện tại
+  void _goToCurrentWeek() {
+    setState(() {
+      final now = DateTime.now();
+      _setWeek(now);
+      _selectedDate = now;
+    });
+    _fetchSchedulesForWeek();
+  }
+
+  /// Gọi API với fromDate/toDate của tuần đang hiển thị
+  Future<void> _fetchSchedulesForWeek() async {
+    setState(() => _isLoading = true);
+
+    final fromDate = _weekDays.first;
+    final toDate = _weekDays.last;
+
+    final schedules = await _controller.fetchSchedulesByWeek(
       classId: _classId,
       staffId: _staffId,
+      fromDate: fromDate,
+      toDate: toDate,
     );
+
     setState(() {
       _schedules = schedules;
       _isLoading = false;
     });
   }
 
-  // Hàm tạo danh sách 7 ngày trong tuần hiện tại
-  void _generateWeekDays() {
-    DateTime now = DateTime.now();
-    // Tìm ngày thứ 2 đầu tuần (Monday = 1)
-    DateTime monday = now.subtract(Duration(days: now.weekday - 1));
-
-    _weekDays = List.generate(7, (index) => monday.add(Duration(days: index)));
-  }
-
-  // Filter data from backend for _selectedDate
+  // Filter schedules for selected day
   List<Schedule> _getClassesForDay(DateTime date) {
     return _schedules.where((schedule) {
       if (schedule.date.isEmpty) return false;
@@ -84,9 +120,33 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     }).toList();
   }
 
+  /// Format header hiển thị tuần: "09 Mar - 15 Mar 2026"
+  String _weekHeader() {
+    final from = _weekDays.first;
+    final to = _weekDays.last;
+    final f = DateFormat('dd MMM');
+    final fFull = DateFormat('dd MMM yyyy');
+
+    if (from.year == to.year && from.month == to.month) {
+      return '${from.day} - ${fFull.format(to)}';
+    } else if (from.year == to.year) {
+      return '${f.format(from)} - ${fFull.format(to)}';
+    } else {
+      return '${fFull.format(from)} - ${fFull.format(to)}';
+    }
+  }
+
+  /// Kiểm tra xem tuần đang xem có phải tuần hiện tại
+  bool _isCurrentWeek() {
+    final now = DateTime.now();
+    final currentMonday = now.subtract(Duration(days: now.weekday - 1));
+    return _weekStart.year == currentMonday.year &&
+           _weekStart.month == currentMonday.month &&
+           _weekStart.day == currentMonday.day;
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Lấy danh sách môn học theo ngày đang chọn
     List<Schedule> classes = _getClassesForDay(_selectedDate);
 
     return Scaffold(
@@ -113,12 +173,58 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
             }
           },
         ),
+        actions: [
+          if (!_isCurrentWeek())
+            IconButton(
+              icon: const Icon(Icons.today, color: Colors.white),
+              tooltip: 'Go to this week',
+              onPressed: _goToCurrentWeek,
+            ),
+        ],
       ),
       body: Column(
         children: [
-          // 1. WEEKLY CALENDAR STRIP (Thanh chọn ngày)
+          // ===== WEEK NAVIGATION HEADER =====
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 15),
+            color: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.chevron_left, color: Colors.orange, size: 30),
+                  onPressed: _goToPreviousWeek,
+                  tooltip: 'Previous week',
+                ),
+                Column(
+                  children: [
+                    Text(
+                      _weekHeader(),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    if (_isCurrentWeek())
+                      const Text(
+                        'This week',
+                        style: TextStyle(fontSize: 12, color: Colors.orange, fontWeight: FontWeight.w600),
+                      ),
+                  ],
+                ),
+                IconButton(
+                  icon: const Icon(Icons.chevron_right, color: Colors.orange, size: 30),
+                  onPressed: _goToNextWeek,
+                  tooltip: 'Next week',
+                ),
+              ],
+            ),
+          ),
+
+          // ===== WEEKLY CALENDAR STRIP =====
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 10),
             decoration: BoxDecoration(
               color: Colors.white,
               boxShadow: [
@@ -139,18 +245,19 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   DateTime date = _weekDays[index];
                   bool isSelected =
                       date.day == _selectedDate.day &&
-                      date.month == _selectedDate.month;
+                      date.month == _selectedDate.month &&
+                      date.year == _selectedDate.year;
+                  bool isToday =
+                      date.day == DateTime.now().day &&
+                      date.month == DateTime.now().month &&
+                      date.year == DateTime.now().year;
 
-                  // Mảng tên thứ viết tắt
                   List<String> days = [
-                    'Mon',
-                    'Tue',
-                    'Wed',
-                    'Thu',
-                    'Fri',
-                    'Sat',
-                    'Sun',
+                    'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun',
                   ];
+
+                  // Đếm số tiết trong ngày này
+                  int classCount = _getClassesForDay(date).length;
 
                   return GestureDetector(
                     onTap: () {
@@ -168,7 +275,10 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         border: Border.all(
                           color: isSelected
                               ? Colors.orange
-                              : Colors.grey.shade200,
+                              : isToday
+                                  ? Colors.orange.shade300
+                                  : Colors.grey.shade200,
+                          width: isToday && !isSelected ? 2 : 1,
                         ),
                         boxShadow: isSelected
                             ? [
@@ -200,6 +310,17 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                               color: isSelected ? Colors.white : Colors.black87,
                             ),
                           ),
+                          // Dot indicator cho ngày có lịch
+                          if (classCount > 0 && !isSelected)
+                            Container(
+                              margin: const EdgeInsets.only(top: 4),
+                              width: 6,
+                              height: 6,
+                              decoration: const BoxDecoration(
+                                color: Colors.orange,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
                         ],
                       ),
                     ),
@@ -211,9 +332,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
           const SizedBox(height: 20),
 
-          // 2. CLASS LIST (Danh sách tiết học)
+          // ===== CLASS LIST =====
           Expanded(
-            child: _isLoading 
+            child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : classes.isEmpty
                 ? Center(
@@ -227,7 +348,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          "No classes today",
+                          "No classes on this day",
                           style: TextStyle(
                             color: Colors.grey[500],
                             fontSize: 16,
@@ -258,10 +379,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     Color statusColor = Colors.grey;
     Color cardBg = Colors.white;
 
-    // Logic màu sắc dựa trên trạng thái
     if (classInfo.status == 'Happening') {
       statusColor = Colors.green;
-      cardBg = Colors.white; // Hoặc màu cam nhạt nếu muốn nổi bật
     } else if (classInfo.status == 'Upcoming') {
       statusColor = Colors.orange;
     }
@@ -275,7 +394,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
           Column(
             children: [
               Text(
-                classInfo.time.split(' - ').first, // Giờ bắt đầu
+                classInfo.time.split(' - ').first,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -283,7 +402,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                classInfo.time.split(' - ').length > 1 ? classInfo.time.split(' - ')[1] : '', // Giờ kết thúc
+                classInfo.time.split(' - ').length > 1 ? classInfo.time.split(' - ')[1] : '',
                 style: const TextStyle(fontSize: 12, color: Colors.grey),
               ),
             ],
@@ -325,14 +444,15 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        classInfo.subject,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                      Expanded(
+                        child: Text(
+                          classInfo.subject,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                      // Chấm trạng thái
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,

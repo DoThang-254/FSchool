@@ -11,7 +11,7 @@ namespace Domain.Entities
         [Required, MaxLength(20)]
         public string RollNumber { get; set; }
 
-        public string AvatarUrl { get; set; }
+        public string? AvatarUrl { get; set; }
 
         // Foreign Keys
         public int AccountId { get; set; }

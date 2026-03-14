@@ -3,24 +3,20 @@
   "WorkspaceRootPath": "D:\\Mobile\\Git\\FSchool-BE\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{7165D014-3C78-44ED-90D9-B70A69C65BC5}|FSchool\\Web.csproj|d:\\mobile\\git\\fschool-be\\fschool\\controllers\\gradescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7165D014-3C78-44ED-90D9-B70A69C65BC5}|FSchool\\Web.csproj|solutionrelative:fschool\\controllers\\gradescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{7165D014-3C78-44ED-90D9-B70A69C65BC5}|FSchool\\Web.csproj|d:\\mobile\\git\\fschool-be\\fschool\\controllers\\schedulescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7165D014-3C78-44ED-90D9-B70A69C65BC5}|FSchool\\Web.csproj|solutionrelative:fschool\\controllers\\schedulescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7165D014-3C78-44ED-90D9-B70A69C65BC5}|FSchool\\Web.csproj|d:\\mobile\\git\\fschool-be\\fschool\\controllers\\absencerequestscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7165D014-3C78-44ED-90D9-B70A69C65BC5}|FSchool\\Web.csproj|solutionrelative:fschool\\controllers\\absencerequestscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{7165D014-3C78-44ED-90D9-B70A69C65BC5}|FSchool\\Web.csproj|d:\\mobile\\git\\fschool-be\\fschool\\web.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{7165D014-3C78-44ED-90D9-B70A69C65BC5}|FSchool\\Web.csproj|solutionrelative:fschool\\web.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7165D014-3C78-44ED-90D9-B70A69C65BC5}|FSchool\\Web.csproj|d:\\mobile\\git\\fschool-be\\fschool\\controllers\\clubscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7165D014-3C78-44ED-90D9-B70A69C65BC5}|FSchool\\Web.csproj|solutionrelative:fschool\\controllers\\clubscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{4A80AF27-7B1A-44E8-9B92-F44008D07CE1}|Infrastructure\\Infrastructure.csproj|d:\\mobile\\git\\fschool-be\\infrastructure\\data\\seeders\\accountsseeder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4A80AF27-7B1A-44E8-9B92-F44008D07CE1}|Infrastructure\\Infrastructure.csproj|solutionrelative:infrastructure\\data\\seeders\\accountsseeder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{C530415D-1B54-4077-93BA-F4B49C6C946F}|Domain\\Domain.csproj|d:\\mobile\\git\\fschool-be\\domain\\entities\\club.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C530415D-1B54-4077-93BA-F4B49C6C946F}|Domain\\Domain.csproj|solutionrelative:domain\\entities\\club.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C530415D-1B54-4077-93BA-F4B49C6C946F}|Domain\\Domain.csproj|d:\\mobile\\git\\fschool-be\\domain\\entities\\studentclub.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C530415D-1B54-4077-93BA-F4B49C6C946F}|Domain\\Domain.csproj|solutionrelative:domain\\entities\\studentclub.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{4A80AF27-7B1A-44E8-9B92-F44008D07CE1}|Infrastructure\\Infrastructure.csproj|d:\\mobile\\git\\fschool-be\\infrastructure\\data\\seeders\\scheduleseeder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4A80AF27-7B1A-44E8-9B92-F44008D07CE1}|Infrastructure\\Infrastructure.csproj|solutionrelative:infrastructure\\data\\seeders\\scheduleseeder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -30,7 +26,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Bookmark",
@@ -49,68 +45,57 @@
               "Name": "ST:12:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
             },
             {
+              "$type": "Bookmark",
+              "Name": "ST:18:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
+            },
+            {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "GradesController.cs",
-              "DocumentMoniker": "D:\\Mobile\\Git\\FSchool-BE\\FSchool\\Controllers\\GradesController.cs",
-              "RelativeDocumentMoniker": "FSchool\\Controllers\\GradesController.cs",
-              "ToolTip": "D:\\Mobile\\Git\\FSchool-BE\\FSchool\\Controllers\\GradesController.cs",
-              "RelativeToolTip": "FSchool\\Controllers\\GradesController.cs",
-              "ViewState": "AgIAAIkAAAAAAAAAAAAgwAAAAAAAAAAAAAAAAA==",
+              "Title": "SchedulesController.cs",
+              "DocumentMoniker": "D:\\Mobile\\Git\\FSchool-BE\\FSchool\\Controllers\\SchedulesController.cs",
+              "RelativeDocumentMoniker": "FSchool\\Controllers\\SchedulesController.cs",
+              "ToolTip": "D:\\Mobile\\Git\\FSchool-BE\\FSchool\\Controllers\\SchedulesController.cs",
+              "RelativeToolTip": "FSchool\\Controllers\\SchedulesController.cs",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAAwBQAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-14T14:19:41.381Z",
+              "WhenOpened": "2026-03-14T15:48:18.083Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "AbsenceRequestsController.cs",
-              "DocumentMoniker": "D:\\Mobile\\Git\\FSchool-BE\\FSchool\\Controllers\\AbsenceRequestsController.cs",
-              "RelativeDocumentMoniker": "FSchool\\Controllers\\AbsenceRequestsController.cs",
-              "ToolTip": "D:\\Mobile\\Git\\FSchool-BE\\FSchool\\Controllers\\AbsenceRequestsController.cs",
-              "RelativeToolTip": "FSchool\\Controllers\\AbsenceRequestsController.cs",
-              "ViewState": "AgIAAE0AAAAAAAAAAAAgwAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-14T14:19:30.348Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "StudentClub.cs",
-              "DocumentMoniker": "D:\\Mobile\\Git\\FSchool-BE\\Domain\\Entities\\StudentClub.cs",
-              "RelativeDocumentMoniker": "Domain\\Entities\\StudentClub.cs",
-              "ToolTip": "D:\\Mobile\\Git\\FSchool-BE\\Domain\\Entities\\StudentClub.cs",
-              "RelativeToolTip": "Domain\\Entities\\StudentClub.cs",
-              "ViewState": "AgIAAA8AAAAAAAAAAAAYwBkAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-13T13:50:11.584Z"
+              "Title": "Web.csproj",
+              "DocumentMoniker": "D:\\Mobile\\Git\\FSchool-BE\\FSchool\\Web.csproj",
+              "RelativeDocumentMoniker": "FSchool\\Web.csproj",
+              "ToolTip": "D:\\Mobile\\Git\\FSchool-BE\\FSchool\\Web.csproj",
+              "RelativeToolTip": "FSchool\\Web.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-03-14T15:48:10.181Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "Club.cs",
-              "DocumentMoniker": "D:\\Mobile\\Git\\FSchool-BE\\Domain\\Entities\\Club.cs",
-              "RelativeDocumentMoniker": "Domain\\Entities\\Club.cs",
-              "ToolTip": "D:\\Mobile\\Git\\FSchool-BE\\Domain\\Entities\\Club.cs",
-              "RelativeToolTip": "Domain\\Entities\\Club.cs",
-              "ViewState": "AgIAABUAAAAAAAAAAAAowAAAAAAAAAAAAAAAAA==",
+              "Title": "ScheduleSeeder.cs",
+              "DocumentMoniker": "D:\\Mobile\\Git\\FSchool-BE\\Infrastructure\\Data\\Seeders\\ScheduleSeeder.cs",
+              "RelativeDocumentMoniker": "Infrastructure\\Data\\Seeders\\ScheduleSeeder.cs",
+              "ToolTip": "D:\\Mobile\\Git\\FSchool-BE\\Infrastructure\\Data\\Seeders\\ScheduleSeeder.cs",
+              "RelativeToolTip": "Infrastructure\\Data\\Seeders\\ScheduleSeeder.cs",
+              "ViewState": "AgIAAB0AAAAAAAAAAAAgwC0AAAA7AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-13T13:49:42.67Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-14T15:46:04.551Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "ClubsController.cs",
-              "DocumentMoniker": "D:\\Mobile\\Git\\FSchool-BE\\FSchool\\Controllers\\ClubsController.cs",
-              "RelativeDocumentMoniker": "FSchool\\Controllers\\ClubsController.cs",
-              "ToolTip": "D:\\Mobile\\Git\\FSchool-BE\\FSchool\\Controllers\\ClubsController.cs",
-              "RelativeToolTip": "FSchool\\Controllers\\ClubsController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAIsBAAAAAAAAAAAAAA==",
+              "Title": "AccountsSeeder.cs",
+              "DocumentMoniker": "D:\\Mobile\\Git\\FSchool-BE\\Infrastructure\\Data\\Seeders\\AccountsSeeder.cs",
+              "RelativeDocumentMoniker": "Infrastructure\\Data\\Seeders\\AccountsSeeder.cs",
+              "ToolTip": "D:\\Mobile\\Git\\FSchool-BE\\Infrastructure\\Data\\Seeders\\AccountsSeeder.cs",
+              "RelativeToolTip": "Infrastructure\\Data\\Seeders\\AccountsSeeder.cs",
+              "ViewState": "AgIAACkAAAAAAAAAAAAgwC0AAAA5AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-13T13:48:56.22Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-14T15:37:39.544Z"
             }
           ]
         }

@@ -12,4 +12,25 @@ class ScheduleController {
       return [];
     }
   }
+
+  /// Lấy lịch theo tuần cụ thể (fromDate -> toDate)
+  Future<List<Schedule>> fetchSchedulesByWeek({
+    int? classId,
+    int? staffId,
+    required DateTime fromDate,
+    required DateTime toDate,
+  }) async {
+    try {
+      final result = await _scheduleService.getSchedulesByDateRange(
+        classId: classId,
+        staffId: staffId,
+        fromDate: fromDate,
+        toDate: toDate,
+      );
+      return result['schedules'] as List<Schedule>;
+    } catch (e) {
+      print("Error fetching schedules by week: $e");
+      return [];
+    }
+  }
 }

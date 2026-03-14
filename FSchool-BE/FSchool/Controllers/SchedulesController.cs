@@ -19,13 +19,26 @@ namespace FSchool.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetSchedules([FromQuery] int? classId, [FromQuery] int? staffId)
+        public async Task<IActionResult> GetSchedules(
+            [FromQuery] int? classId,
+            [FromQuery] int? staffId,
+            [FromQuery] DateTime? fromDate,
+            [FromQuery] DateTime? toDate)
         {
+            // Mặc định: tuần hiện tại (Thứ 2 -> Chủ nhật)
+            var now = DateTime.Now;
+            var monday = now.AddDays(-(int)now.DayOfWeek + (int)DayOfWeek.Monday);
+            if (now.DayOfWeek == DayOfWeek.Sunday) monday = monday.AddDays(-7);
+
+            var from = fromDate?.Date ?? monday.Date;
+            var to = toDate?.Date ?? from.AddDays(6).Date;
+
             var query = _context.Schedules
                 .Include(s => s.Slot)
                 .Include(s => s.Subject)
                 .Include(s => s.Room)
                 .Include(s => s.Staff)
+                .Where(s => s.Date.Date >= from && s.Date.Date <= to)
                 .AsQueryable();
 
             if (classId.HasValue)
@@ -39,6 +52,7 @@ namespace FSchool.Controllers
             }
 
             var schedules = await query
+                .OrderBy(s => s.Date).ThenBy(s => s.Slot.StartTime)
                 .Select(s => new
                 {
                     id = s.Id,
@@ -52,7 +66,12 @@ namespace FSchool.Controllers
                 })
                 .ToListAsync();
 
-            return Ok(schedules);
+            return Ok(new
+            {
+                fromDate = from,
+                toDate = to,
+                schedules
+            });
         }
 
         [HttpPost("batch")]

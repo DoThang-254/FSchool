@@ -198,7 +198,7 @@ class _HomeState extends State<Home> {
                             arguments: args,
                           );
                         } else if (item['route'] == '/mark_report') {
-                          if (userRoles.contains("staff")) {
+                          if (userRoles.contains("admin")) {
                             Navigator.pushNamed(
                               context,
                               '/manage_grades',
@@ -212,13 +212,13 @@ class _HomeState extends State<Home> {
                             );
                           }
                         } else if (item['route'] == '/events') {
-                          if (userRoles.contains("staff")) {
+                          if (userRoles.contains("admin")) {
                             Navigator.pushNamed(context, '/manage_events');
                           } else {
                             Navigator.pushNamed(context, item['route']);
                           }
                         } else if (item['route'] == '/clubs') {
-                          if (userRoles.contains("staff")) {
+                          if (userRoles.contains("admin")) {
                             Navigator.pushNamed(context, '/manage_clubs');
                           } else {
                             Navigator.pushNamed(context, item['route']);

@@ -43,7 +43,7 @@ namespace Infrastructure.Data.Seeders
                 {
                     PhoneNumber = "0900000001",
                     PasswordHash = studentPassword,
-                    Roles = new List<Role> { studentRole, adminRole }, // Seed multiple roles for this account
+                    Roles = new List<Role> { studentRole }, // Seed multiple roles for this account
                     Email = "thangmoneo2542004@gmail.com"
                 },
                 new Account
@@ -57,7 +57,7 @@ namespace Infrastructure.Data.Seeders
                 {
                     PhoneNumber = "0900000002",
                     PasswordHash = staffPassword,
-                    Roles = new List<Role> { staffRole },
+                    Roles = new List<Role> { staffRole , adminRole},
                     Email = "thangdqhe180102@fpt.edu.vn"
                 }
             };
