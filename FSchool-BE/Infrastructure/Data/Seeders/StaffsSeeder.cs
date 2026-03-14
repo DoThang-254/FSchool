@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+using Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,30 +32,59 @@ namespace Infrastructure.Data.Seeders
                 return;
             }
 
+            // Tìm tài khoản Staff
             var staffAccount = await _context.Accounts
-                .FirstOrDefaultAsync(a => a.PhoneNumber == "0900000002" && a.Role == "Staff");
+                .FirstOrDefaultAsync(a => a.PhoneNumber == "0900000002");
 
-            if (staffAccount == null)
+            // Tìm tài khoản Admin
+            var adminAccount = await _context.Accounts
+                .FirstOrDefaultAsync(a => a.PhoneNumber == "0900000003");
+
+            var staffs = new List<Staff>();
+
+            // Thêm Staff nếu tìm thấy tài khoản
+            if (staffAccount != null)
             {
-                _logger.LogWarning("Staff account not found, skipping staff seeding");
-                return;
+                staffs.Add(new Staff
+                {
+                    FullName = "Tran Thi B",
+                    EmployeeId = "EMP001",
+                    Department = "Information Technology",
+                    AccountId = staffAccount.Id
+                });
+            }
+            else
+            {
+                _logger.LogWarning("Staff account not found, skipping staff seeding for EMP001");
             }
 
-            var staffs = new List<Staff>
-        {
-            new Staff
+            // Thêm Admin vào bảng Staff nếu tìm thấy tài khoản
+            if (adminAccount != null)
             {
-                FullName = "Tran Thi B",
-                EmployeeId = "EMP001",
-                Department = "Information Technology",
-                AccountId = staffAccount.Id
+                staffs.Add(new Staff
+                {
+                    FullName = "Nguyen Van Admin", // Bạn có thể đổi tên tùy ý
+                    EmployeeId = "ADM001",
+                    Department = "Administration",
+                    AccountId = adminAccount.Id
+                });
             }
-        };
+            else
+            {
+                _logger.LogWarning("Admin account not found, skipping staff seeding for ADM001");
+            }
 
-            await _context.Staffs.AddRangeAsync(staffs);
-            await _context.SaveChangesAsync();
-
-            _logger.LogInformation("Seeded {Count} staffs", staffs.Count);
+            // Nếu có ít nhất 1 staff được tạo ra thì lưu vào db
+            if (staffs.Any())
+            {
+                await _context.Staffs.AddRangeAsync(staffs);
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("Seeded {Count} staffs", staffs.Count);
+            }
+            else
+            {
+                _logger.LogWarning("No accounts found to seed into Staffs table.");
+            }
         }
     }
 }

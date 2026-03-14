@@ -1,4 +1,4 @@
-﻿using Application.Interfaces.Services;
+using Application.Interfaces.Services;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -27,12 +27,23 @@ namespace Infrastructure.ExternalServices
                ?? account.Staff?.FullName
                ?? "Unknown";
 
-            var claims = new[]
+            var claims = new List<Claim>
             {
-            new Claim(JwtRegisteredClaimNames.Sub, account.Id.ToString()),
-            new Claim(ClaimTypes.Name, fullName),
-            new Claim(ClaimTypes.Role, account.Role.ToString())
-        };
+                new Claim(JwtRegisteredClaimNames.Sub, account.Id.ToString()),
+                new Claim(ClaimTypes.Name, fullName)
+            };
+
+            if (account.Roles != null && account.Roles.Any())
+            {
+                foreach (var role in account.Roles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, role.RoleName));
+                }
+            }
+            else
+            {
+                claims.Add(new Claim(ClaimTypes.Role, "Unknown"));
+            }
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {

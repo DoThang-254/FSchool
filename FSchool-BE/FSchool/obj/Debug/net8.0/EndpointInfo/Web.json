@@ -5,6 +5,222 @@
     "version": "1.0"
   },
   "paths": {
+    "/api/AbsenceRequests": {
+      "get": {
+        "tags": [
+          "AbsenceRequests"
+        ],
+        "parameters": [
+          {
+            "name": "studentId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "accountId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "AbsenceRequests"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAbsenceRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAbsenceRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAbsenceRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/AbsenceRequests/{id}": {
+      "get": {
+        "tags": [
+          "AbsenceRequests"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "AbsenceRequests"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAbsenceRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAbsenceRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAbsenceRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "AbsenceRequests"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/AbsenceRequests/{id}/status": {
+      "patch": {
+        "tags": [
+          "AbsenceRequests"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStatusDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStatusDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStatusDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Admin/create-account": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAccountDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAccountDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAccountDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Auth/login": {
       "post": {
         "tags": [
@@ -32,6 +248,1872 @@
         "responses": {
           "200": {
             "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Auth/forgot-password/send-otp": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendOtpRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendOtpRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendOtpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Auth/forgot-password/reset": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyOtpRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyOtpRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyOtpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Auth/logout": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Auth/google": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoogleLoginRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoogleLoginRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoogleLoginRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Classes": {
+      "get": {
+        "tags": [
+          "Classes"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SchoolClass"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SchoolClass"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SchoolClass"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Classes"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateClassDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateClassDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateClassDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolClass"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolClass"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolClass"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Classes/{id}/students": {
+      "get": {
+        "tags": [
+          "Classes"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Classes/{id}": {
+      "put": {
+        "tags": [
+          "Classes"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateClassDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateClassDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateClassDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Classes"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Clubs": {
+      "get": {
+        "tags": [
+          "Clubs"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Clubs"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClubCreateUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClubCreateUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClubCreateUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Clubs/pending": {
+      "get": {
+        "tags": [
+          "Clubs"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Clubs/all": {
+      "get": {
+        "tags": [
+          "Clubs"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Clubs/propose": {
+      "post": {
+        "tags": [
+          "Clubs"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClubCreateUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClubCreateUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClubCreateUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Clubs/{id}/approve": {
+      "put": {
+        "tags": [
+          "Clubs"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Clubs/{id}/deactivate": {
+      "put": {
+        "tags": [
+          "Clubs"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Clubs/{id}": {
+      "put": {
+        "tags": [
+          "Clubs"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClubCreateUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClubCreateUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClubCreateUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Clubs"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Clubs/{id}/join": {
+      "post": {
+        "tags": [
+          "Clubs"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "studentId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Clubs/{id}/members": {
+      "get": {
+        "tags": [
+          "Clubs"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Clubs/{id}/members/pending": {
+      "get": {
+        "tags": [
+          "Clubs"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Clubs/{id}/members/{studentId}/approve": {
+      "put": {
+        "tags": [
+          "Clubs"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "studentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Clubs/{id}/members/{studentId}/reject": {
+      "put": {
+        "tags": [
+          "Clubs"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "studentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Clubs/{id}/members/{studentId}/role": {
+      "put": {
+        "tags": [
+          "Clubs"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "studentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClubRoleUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClubRoleUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClubRoleUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Clubs/{id}/members/{studentId}/leave": {
+      "put": {
+        "tags": [
+          "Clubs"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "studentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Clubs/{id}/my-status": {
+      "get": {
+        "tags": [
+          "Clubs"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "studentId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/CourseRegistration/student/register": {
+      "post": {
+        "tags": [
+          "CourseRegistration"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubjectRegistrationDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubjectRegistrationDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubjectRegistrationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/CourseRegistration/staff/assign-class": {
+      "post": {
+        "tags": [
+          "CourseRegistration"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClassAssignmentDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClassAssignmentDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClassAssignmentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/CourseRegistration/staff/batch-assign-class": {
+      "post": {
+        "tags": [
+          "CourseRegistration"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchClassAssignmentDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchClassAssignmentDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchClassAssignmentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/CourseRegistration/staff/remove-class": {
+      "post": {
+        "tags": [
+          "CourseRegistration"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RemoveFromClassDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RemoveFromClassDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RemoveFromClassDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Events": {
+      "get": {
+        "tags": [
+          "Events"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventCreateUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventCreateUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventCreateUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Events/all": {
+      "get": {
+        "tags": [
+          "Events"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Events/pending": {
+      "get": {
+        "tags": [
+          "Events"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Events/propose": {
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventCreateUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventCreateUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventCreateUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Events/{id}/approve": {
+      "put": {
+        "tags": [
+          "Events"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Events/{id}/publish": {
+      "put": {
+        "tags": [
+          "Events"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Events/{id}/register": {
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "studentId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Events/{id}/checkin/{studentId}": {
+      "put": {
+        "tags": [
+          "Events"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "studentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Events/{id}/complete": {
+      "put": {
+        "tags": [
+          "Events"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Events/{id}/registrations": {
+      "get": {
+        "tags": [
+          "Events"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Events/{id}/my-status": {
+      "get": {
+        "tags": [
+          "Events"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "studentId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Events/{id}": {
+      "put": {
+        "tags": [
+          "Events"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventCreateUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventCreateUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventCreateUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Events"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Events/{id}/cancel": {
+      "put": {
+        "tags": [
+          "Events"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Grades/student/{studentId}": {
+      "get": {
+        "tags": [
+          "Grades"
+        ],
+        "parameters": [
+          {
+            "name": "studentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "semester",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scholastic",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GradeDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GradeDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GradeDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Grades": {
+      "post": {
+        "tags": [
+          "Grades"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GradeCreateUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GradeCreateUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GradeCreateUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GradeDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GradeDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GradeDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Grades/staff/{staffId}/classes": {
+      "get": {
+        "tags": [
+          "Grades"
+        ],
+        "parameters": [
+          {
+            "name": "staffId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Grades/staff/{staffId}/subjects": {
+      "get": {
+        "tags": [
+          "Grades"
+        ],
+        "parameters": [
+          {
+            "name": "staffId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/News": {
+      "get": {
+        "tags": [
+          "News"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Rooms": {
+      "get": {
+        "tags": [
+          "Rooms"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Room"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Room"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Room"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Schedules": {
+      "get": {
+        "tags": [
+          "Schedules"
+        ],
+        "parameters": [
+          {
+            "name": "classId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "staffId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Schedules"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScheduleCreateUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScheduleCreateUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScheduleCreateUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Schedules/batch": {
+      "post": {
+        "tags": [
+          "Schedules"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchScheduleDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchScheduleDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchScheduleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Schedules/{id}": {
+      "put": {
+        "tags": [
+          "Schedules"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScheduleCreateUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScheduleCreateUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScheduleCreateUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Schedules"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Semesters": {
+      "get": {
+        "tags": [
+          "Semesters"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Semester"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Semester"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Semester"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Semesters/filters": {
+      "get": {
+        "tags": [
+          "Semesters"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilterOptionsDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilterOptionsDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilterOptionsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Slots": {
+      "get": {
+        "tags": [
+          "Slots"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Slot"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Slot"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Slot"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Staffs": {
+      "get": {
+        "tags": [
+          "Staffs"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Staff"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Staff"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Staff"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Students": {
+      "get": {
+        "tags": [
+          "Students"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Student"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Student"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Student"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Subjects": {
+      "get": {
+        "tags": [
+          "Subjects"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Subject"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Subject"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Subject"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -78,14 +2160,1357 @@
   },
   "components": {
     "schemas": {
-      "LoginRequestDto": {
+      "AbsenceRequest": {
         "type": "object",
         "properties": {
-          "username": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reason": {
+            "maxLength": 500,
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "maxLength": 50,
+            "type": "string",
+            "nullable": true
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "studentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "student": {
+            "$ref": "#/components/schemas/Student"
+          },
+          "slots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Slot"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Account": {
+        "required": [
+          "email",
+          "passwordHash",
+          "phoneNumber"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "phoneNumber": {
+            "maxLength": 20,
+            "minLength": 1,
+            "type": "string"
+          },
+          "email": {
+            "maxLength": 255,
+            "minLength": 1,
+            "type": "string"
+          },
+          "passwordHash": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Role"
+            },
+            "nullable": true
+          },
+          "student": {
+            "$ref": "#/components/schemas/Student"
+          },
+          "staff": {
+            "$ref": "#/components/schemas/Staff"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Attendance": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "maxLength": 20,
+            "type": "string",
+            "nullable": true
+          },
+          "studentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "student": {
+            "$ref": "#/components/schemas/Student"
+          },
+          "scheduleId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "schedule": {
+            "$ref": "#/components/schemas/Schedule"
+          }
+        },
+        "additionalProperties": false
+      },
+      "BatchClassAssignmentDto": {
+        "type": "object",
+        "properties": {
+          "classId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "studentIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BatchScheduleDto": {
+        "type": "object",
+        "properties": {
+          "classId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subjectId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "roomId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "staffId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "slotIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          },
+          "daysOfWeek": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "totalSessions": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "skipHolidays": {
+            "type": "boolean"
+          },
+          "skipSundays": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ClassAssignmentDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "classId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Club": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
+          },
+          "category": {
+            "maxLength": 50,
+            "type": "string",
+            "nullable": true
+          },
+          "membersCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/ClubStatus"
+          },
+          "foundedDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "advisorStaffId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "advisorStaff": {
+            "$ref": "#/components/schemas/Staff"
+          },
+          "studentClubs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentClub"
+            },
+            "nullable": true
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Event"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ClubCreateUpdateDto": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
+          },
+          "category": {
+            "maxLength": 50,
+            "type": "string",
+            "nullable": true
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ClubRole": {
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "ClubRoleUpdateDto": {
+        "required": [
+          "role"
+        ],
+        "type": "object",
+        "properties": {
+          "role": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ClubStatus": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "CreateAbsenceRequestDto": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          },
+          "accountId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "slotIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateAccountDto": {
+        "type": "object",
+        "properties": {
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
             "type": "string",
             "nullable": true
           },
           "password": {
+            "type": "string",
+            "nullable": true
+          },
+          "fullName": {
+            "type": "string",
+            "nullable": true
+          },
+          "role": {
+            "type": "string",
+            "nullable": true
+          },
+          "rollNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "employeeId": {
+            "type": "string",
+            "nullable": true
+          },
+          "department": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateClassDto": {
+        "type": "object",
+        "properties": {
+          "className": {
+            "type": "string",
+            "nullable": true
+          },
+          "academicYear": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Event": {
+        "required": [
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "eventDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "location": {
+            "maxLength": 200,
+            "type": "string",
+            "nullable": true
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "isNews": {
+            "type": "boolean"
+          },
+          "status": {
+            "$ref": "#/components/schemas/EventStatus"
+          },
+          "budget": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "maxParticipants": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "clubId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "club": {
+            "$ref": "#/components/schemas/Club"
+          },
+          "roomId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "room": {
+            "$ref": "#/components/schemas/Room"
+          },
+          "registrations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventRegistration"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EventAttendanceStatus": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "EventCreateUpdateDto": {
+        "required": [
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "eventDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "location": {
+            "maxLength": 200,
+            "type": "string",
+            "nullable": true
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "isNews": {
+            "type": "boolean"
+          },
+          "clubId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "budget": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "maxParticipants": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "roomId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EventRegistration": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "eventId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "event": {
+            "$ref": "#/components/schemas/Event"
+          },
+          "studentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "student": {
+            "$ref": "#/components/schemas/Student"
+          },
+          "registrationDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "attendanceStatus": {
+            "$ref": "#/components/schemas/EventAttendanceStatus"
+          }
+        },
+        "additionalProperties": false
+      },
+      "EventStatus": {
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "FilterOptionsDto": {
+        "type": "object",
+        "properties": {
+          "years": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "semesters": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "GoogleLoginRequestDto": {
+        "required": [
+          "idToken"
+        ],
+        "type": "object",
+        "properties": {
+          "idToken": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Grade": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "oralScore": {
+            "type": "number",
+            "format": "double"
+          },
+          "smallTestScore": {
+            "type": "number",
+            "format": "double"
+          },
+          "middleTestScore": {
+            "type": "number",
+            "format": "double"
+          },
+          "finalTestScore": {
+            "type": "number",
+            "format": "double"
+          },
+          "score": {
+            "type": "number",
+            "format": "double"
+          },
+          "status": {
+            "maxLength": 20,
+            "type": "string",
+            "nullable": true
+          },
+          "studentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "student": {
+            "$ref": "#/components/schemas/Student"
+          },
+          "subjectId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/Subject"
+          },
+          "semesterId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "semester": {
+            "$ref": "#/components/schemas/Semester"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GradeCreateUpdateDto": {
+        "required": [
+          "semesterId",
+          "studentId",
+          "subjectId"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "oralScore": {
+            "type": "number",
+            "format": "double"
+          },
+          "smallTestScore": {
+            "type": "number",
+            "format": "double"
+          },
+          "middleTestScore": {
+            "type": "number",
+            "format": "double"
+          },
+          "finalTestScore": {
+            "type": "number",
+            "format": "double"
+          },
+          "status": {
+            "maxLength": 20,
+            "type": "string",
+            "nullable": true
+          },
+          "studentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subjectId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "semesterId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GradeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "oralScore": {
+            "type": "number",
+            "format": "double"
+          },
+          "smallTestScore": {
+            "type": "number",
+            "format": "double"
+          },
+          "middleTestScore": {
+            "type": "number",
+            "format": "double"
+          },
+          "finalTestScore": {
+            "type": "number",
+            "format": "double"
+          },
+          "score": {
+            "type": "number",
+            "format": "double"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "subjectName": {
+            "type": "string",
+            "nullable": true
+          },
+          "semesterName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LoginRequestDto": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MembershipStatus": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "RemoveFromClassDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "classId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Role": {
+        "required": [
+          "roleName"
+        ],
+        "type": "object",
+        "properties": {
+          "roleId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "roleName": {
+            "maxLength": 255,
+            "minLength": 1,
+            "type": "string"
+          },
+          "accounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Account"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Room": {
+        "required": [
+          "roomName"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "roomName": {
+            "maxLength": 50,
+            "minLength": 1,
+            "type": "string"
+          },
+          "capacity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "schedules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Schedule"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Schedule": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "slotId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "slot": {
+            "$ref": "#/components/schemas/Slot"
+          },
+          "subjectId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/Subject"
+          },
+          "roomId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "room": {
+            "$ref": "#/components/schemas/Room"
+          },
+          "classId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "schoolClass": {
+            "$ref": "#/components/schemas/SchoolClass"
+          },
+          "staffId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "staff": {
+            "$ref": "#/components/schemas/Staff"
+          },
+          "attendances": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Attendance"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ScheduleCreateUpdateDto": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "slotId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subjectId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "roomId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "classId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "staffId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SchoolClass": {
+        "required": [
+          "className"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "className": {
+            "maxLength": 50,
+            "minLength": 1,
+            "type": "string"
+          },
+          "academicYear": {
+            "maxLength": 20,
+            "type": "string",
+            "nullable": true
+          },
+          "students": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Student"
+            },
+            "nullable": true
+          },
+          "schedules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Schedule"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Semester": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "maxLength": 50,
+            "minLength": 1,
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "grades": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Grade"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SendOtpRequest": {
+        "type": "object",
+        "properties": {
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Shift": {
+        "required": [
+          "shiftName"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "shiftName": {
+            "maxLength": 50,
+            "minLength": 1,
+            "type": "string"
+          },
+          "slots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Slot"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Slot": {
+        "required": [
+          "slotName"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "slotName": {
+            "maxLength": 50,
+            "minLength": 1,
+            "type": "string"
+          },
+          "startTime": {
+            "type": "string",
+            "format": "date-span"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "date-span"
+          },
+          "shiftId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "shift": {
+            "$ref": "#/components/schemas/Shift"
+          },
+          "schedules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Schedule"
+            },
+            "nullable": true
+          },
+          "absenceRequests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AbsenceRequest"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Staff": {
+        "required": [
+          "employeeId",
+          "fullName"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fullName": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
+          },
+          "employeeId": {
+            "maxLength": 20,
+            "minLength": 1,
+            "type": "string"
+          },
+          "department": {
+            "maxLength": 50,
+            "type": "string",
+            "nullable": true
+          },
+          "accountId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "account": {
+            "$ref": "#/components/schemas/Account"
+          },
+          "schedules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Schedule"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Student": {
+        "required": [
+          "fullName",
+          "rollNumber"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fullName": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
+          },
+          "rollNumber": {
+            "maxLength": 20,
+            "minLength": 1,
+            "type": "string"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "accountId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "account": {
+            "$ref": "#/components/schemas/Account"
+          },
+          "schoolClasses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SchoolClass"
+            },
+            "nullable": true
+          },
+          "grades": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Grade"
+            },
+            "nullable": true
+          },
+          "absenceRequests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AbsenceRequest"
+            },
+            "nullable": true
+          },
+          "attendances": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Attendance"
+            },
+            "nullable": true
+          },
+          "studentClubs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentClub"
+            },
+            "nullable": true
+          },
+          "eventRegistrations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventRegistration"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "StudentClub": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "studentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "student": {
+            "$ref": "#/components/schemas/Student"
+          },
+          "clubId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "club": {
+            "$ref": "#/components/schemas/Club"
+          },
+          "clubRole": {
+            "$ref": "#/components/schemas/ClubRole"
+          },
+          "status": {
+            "$ref": "#/components/schemas/MembershipStatus"
+          },
+          "joinDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "leftDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Subject": {
+        "required": [
+          "subjectCode",
+          "subjectName"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subjectCode": {
+            "maxLength": 20,
+            "minLength": 1,
+            "type": "string"
+          },
+          "subjectName": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
+          },
+          "credits": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "schedules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Schedule"
+            },
+            "nullable": true
+          },
+          "grades": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Grade"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SubjectRegistrationDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subjectId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "semesterId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateAbsenceRequestDto": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          },
+          "slotIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateStatusDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "VerifyOtpRequest": {
+        "type": "object",
+        "properties": {
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "otpCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "newPassword": {
             "type": "string",
             "nullable": true
           }

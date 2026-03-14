@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-
+import 'package:bai1/widgets/custom_bottom_nav_bar.dart';
+import 'package:bai1/models/schedule.dart';
+import 'package:bai1/controllers/schedule_controller.dart';
 class ScheduleScreen extends StatefulWidget {
   const ScheduleScreen({super.key});
 
@@ -14,10 +16,48 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   // Danh sách các ngày trong tuần (Giả lập tuần hiện tại)
   late List<DateTime> _weekDays;
 
+  final ScheduleController _controller = ScheduleController();
+  List<Schedule> _schedules = [];
+  bool _isLoading = true;
+  int? _classId;
+  int? _staffId;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args = ModalRoute.of(context)?.settings.arguments;
+    
+    if (args is int) {
+      _classId = args;
+    } else if (args != null) {
+      // Assuming args is something that has classId or staffId (dynamic or AuthResponse)
+      try {
+        _classId = (args as dynamic).classId;
+        _staffId = (args as dynamic).staffId;
+      } catch (e) {
+        debugPrint("ScheduleScreen: Error parsing arguments: $e");
+      }
+    }
+    
+    debugPrint("ScheduleScreen: Fetching for classId: $_classId, staffId: $_staffId");
+    _fetchSchedules();
+  }
+
   @override
   void initState() {
     super.initState();
     _generateWeekDays();
+  }
+
+  Future<void> _fetchSchedules() async {
+    final schedules = await _controller.fetchSchedules(
+      classId: _classId,
+      staffId: _staffId,
+    );
+    setState(() {
+      _schedules = schedules;
+      _isLoading = false;
+    });
   }
 
   // Hàm tạo danh sách 7 ngày trong tuần hiện tại
@@ -29,79 +69,25 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     _weekDays = List.generate(7, (index) => monday.add(Duration(days: index)));
   }
 
-  // Dữ liệu giả lập các môn học theo thứ (Weekday)
-  List<Map<String, dynamic>> _getClassesForDay(int weekday) {
-    // weekday: 1 (Mon) -> 7 (Sun)
-    switch (weekday) {
-      case 1: // Monday
-        return [
-          {
-            'time': '07:00 - 09:00',
-            'subject': 'Mathematics',
-            'room': 'A-101',
-            'teacher': 'Dr. Alan',
-            'status': 'Finished',
-          },
-          {
-            'time': '09:30 - 11:30',
-            'subject': 'Physics',
-            'room': 'Lab-2',
-            'teacher': 'Ms. Sarah',
-            'status': 'Happening',
-          },
-        ];
-      case 2: // Tuesday
-        return [
-          {
-            'time': '13:00 - 15:00',
-            'subject': 'Chemistry',
-            'room': 'Lab-1',
-            'teacher': 'Mr. John',
-            'status': 'Upcoming',
-          },
-          {
-            'time': '15:30 - 17:30',
-            'subject': 'Physical Edu',
-            'room': 'Stadium',
-            'teacher': 'Coach Mike',
-            'status': 'Upcoming',
-          },
-        ];
-      case 3: // Wednesday
-        return [
-          {
-            'time': '07:00 - 09:00',
-            'subject': 'Literature',
-            'room': 'B-202',
-            'teacher': 'Ms. Emily',
-            'status': 'Upcoming',
-          },
-          {
-            'time': '09:30 - 11:30',
-            'subject': 'History',
-            'room': 'C-305',
-            'teacher': 'Mr. David',
-            'status': 'Upcoming',
-          },
-          {
-            'time': '13:00 - 15:00',
-            'subject': 'English',
-            'room': 'A-102',
-            'teacher': 'Mr. Wilson',
-            'status': 'Upcoming',
-          },
-        ];
-      default:
-        return []; // Các ngày khác nghỉ
-    }
+  // Filter data from backend for _selectedDate
+  List<Schedule> _getClassesForDay(DateTime date) {
+    return _schedules.where((schedule) {
+      if (schedule.date.isEmpty) return false;
+      try {
+        DateTime parsedDate = DateTime.parse(schedule.date);
+        return parsedDate.year == date.year &&
+               parsedDate.month == date.month &&
+               parsedDate.day == date.day;
+      } catch (e) {
+        return false;
+      }
+    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
     // Lấy danh sách môn học theo ngày đang chọn
-    List<Map<String, dynamic>> classes = _getClassesForDay(
-      _selectedDate.weekday,
-    );
+    List<Schedule> classes = _getClassesForDay(_selectedDate);
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -227,7 +213,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
           // 2. CLASS LIST (Danh sách tiết học)
           Expanded(
-            child: classes.isEmpty
+            child: _isLoading 
+                ? const Center(child: CircularProgressIndicator())
+                : classes.isEmpty
                 ? Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -258,19 +246,23 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
           ),
         ],
       ),
+      bottomNavigationBar: CustomBottomNavigationBar(
+        currentIndex: -1,
+        args: ModalRoute.of(context)?.settings.arguments,
+      ),
     );
   }
 
   // Widget hiển thị từng tiết học
-  Widget _buildClassCard(Map<String, dynamic> classInfo) {
+  Widget _buildClassCard(Schedule classInfo) {
     Color statusColor = Colors.grey;
     Color cardBg = Colors.white;
 
     // Logic màu sắc dựa trên trạng thái
-    if (classInfo['status'] == 'Happening') {
+    if (classInfo.status == 'Happening') {
       statusColor = Colors.green;
       cardBg = Colors.white; // Hoặc màu cam nhạt nếu muốn nổi bật
-    } else if (classInfo['status'] == 'Upcoming') {
+    } else if (classInfo.status == 'Upcoming') {
       statusColor = Colors.orange;
     }
 
@@ -283,7 +275,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
           Column(
             children: [
               Text(
-                classInfo['time'].split(' - ')[0], // Giờ bắt đầu
+                classInfo.time.split(' - ').first, // Giờ bắt đầu
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -291,7 +283,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                classInfo['time'].split(' - ')[1], // Giờ kết thúc
+                classInfo.time.split(' - ').length > 1 ? classInfo.time.split(' - ')[1] : '', // Giờ kết thúc
                 style: const TextStyle(fontSize: 12, color: Colors.grey),
               ),
             ],
@@ -323,7 +315,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     offset: const Offset(0, 5),
                   ),
                 ],
-                border: classInfo['status'] == 'Happening'
+                border: classInfo.status == 'Happening'
                     ? Border.all(color: Colors.green, width: 1.5)
                     : null,
               ),
@@ -334,7 +326,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        classInfo['subject'],
+                        classInfo.subject,
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -351,7 +343,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          classInfo['status'],
+                          classInfo.status,
                           style: TextStyle(
                             color: statusColor,
                             fontSize: 10,
@@ -367,7 +359,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                       Icon(Icons.room, size: 16, color: Colors.grey[600]),
                       const SizedBox(width: 4),
                       Text(
-                        "Room: ${classInfo['room']}",
+                        "Room: ${classInfo.room}",
                         style: TextStyle(color: Colors.grey[600], fontSize: 14),
                       ),
                     ],
@@ -378,7 +370,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                       Icon(Icons.person, size: 16, color: Colors.grey[600]),
                       const SizedBox(width: 4),
                       Text(
-                        classInfo['teacher'],
+                        classInfo.teacher,
                         style: TextStyle(color: Colors.grey[600], fontSize: 14),
                       ),
                     ],

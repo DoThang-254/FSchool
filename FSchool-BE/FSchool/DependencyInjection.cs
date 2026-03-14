@@ -43,12 +43,13 @@ public static class DependencyInjection
             options.AddPolicy("AllowFrontend",
                 policy =>
                 {
-                    policy.WithOrigins("http://localhost:52860")
+                    policy.AllowAnyOrigin()
                           .AllowAnyHeader()
-                          .AllowAnyMethod()
-                          .AllowCredentials();
+                          .AllowAnyMethod();
                 });
         });
+
+        services.AddMemoryCache();
 
         return services;
     }

@@ -1,4 +1,5 @@
-﻿
+using Domain.Enums;
+
 namespace Domain.Entities
 {
     public class Club
@@ -19,9 +20,18 @@ namespace Domain.Entities
 
         public string Description { get; set; }
 
-        public ICollection<Student> Students { get; set; }
+        public ClubStatus Status { get; set; } = ClubStatus.PendingApproval;
+
+        public DateTime FoundedDate { get; set; } = DateTime.UtcNow;
+
+        // Giáo viên cố vấn
+        public int? AdvisorStaffId { get; set; }
+        [ForeignKey("AdvisorStaffId")]
+        public Staff AdvisorStaff { get; set; }
+
+        // Navigation Properties
+        public ICollection<StudentClub> StudentClubs { get; set; }
 
         public ICollection<Event> Events { get; set; }
-
     }
 }

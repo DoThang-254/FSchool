@@ -1,45 +1,37 @@
-import 'package:bai1/screens/clubs-details.dart';
+import 'package:bai1/screens/club_details.dart';
+import 'package:bai1/widgets/custom_bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:bai1/models/club.dart';
+import 'package:bai1/controllers/club_controller.dart';
 
-class ClubsScreen extends StatelessWidget {
+class ClubsScreen extends StatefulWidget {
   const ClubsScreen({super.key});
 
   @override
+  State<ClubsScreen> createState() => _ClubsScreenState();
+}
+
+class _ClubsScreenState extends State<ClubsScreen> {
+  final ClubController _controller = ClubController();
+  List<Club> _clubs = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchClubs();
+  }
+
+  Future<void> _fetchClubs() async {
+    final clubs = await _controller.fetchClubs();
+    setState(() {
+      _clubs = clubs;
+      _isLoading = false;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Dữ liệu giả lập
-    final List<Map<String, dynamic>> clubs = [
-      {
-        'name': 'Coding Club',
-        'category': 'Academic',
-        'members': 45,
-        'image': 'https://picsum.photos/id/5/200/200',
-        'description':
-            'For students who love programming, algorithms, and building software.',
-      },
-      {
-        'name': 'Basketball Team',
-        'category': 'Sports',
-        'members': 20,
-        'image': 'https://picsum.photos/id/9/200/200',
-        'description':
-            'Join the school basketball team. We practice every Tuesday and Thursday.',
-      },
-      {
-        'name': 'Art & Design',
-        'category': 'Arts',
-        'members': 30,
-        'image': 'https://picsum.photos/id/10/200/200',
-        'description':
-            'Unleash your creativity with painting, sketching, and digital art.',
-      },
-      {
-        'name': 'Music Club',
-        'category': 'Arts',
-        'members': 50,
-        'image': 'https://picsum.photos/id/12/200/200',
-        'description': 'Choir, band, and instrument learning for everyone.',
-      },
-    ];
 
     return Scaffold(
       appBar: AppBar(
@@ -57,7 +49,9 @@ class ClubsScreen extends StatelessWidget {
           },
         ),
       ),
-      body: GridView.builder(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : GridView.builder(
         padding: const EdgeInsets.all(16),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2, // 2 cột
@@ -65,15 +59,23 @@ class ClubsScreen extends StatelessWidget {
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
         ),
-        itemCount: clubs.length,
+        itemCount: _clubs.length,
         itemBuilder: (context, index) {
-          final club = clubs[index];
+          final club = _clubs[index];
           return GestureDetector(
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ClubDetailScreen(club: club),
+                  builder: (context) => ClubDetailScreen(club: {
+                    'id': club.id,
+                    'name': club.name,
+                    'category': club.category,
+                    'members': club.members,
+                    'image': club.image ?? 'https://via.placeholder.com/200',
+                    'description': club.description ?? '',
+                    'status': club.status ?? 'Active',
+                  }),
                 ),
               );
             },
@@ -91,7 +93,7 @@ class ClubsScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         image: DecorationImage(
-                          image: NetworkImage(club['image']),
+                          image: NetworkImage(club.image ?? 'https://via.placeholder.com/200'),
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -99,7 +101,7 @@ class ClubsScreen extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    club['name'],
+                    club.name,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
@@ -108,7 +110,7 @@ class ClubsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    club['category'],
+                    club.category,
                     style: TextStyle(color: Colors.grey[600], fontSize: 12),
                   ),
                   const SizedBox(height: 16),
@@ -117,6 +119,10 @@ class ClubsScreen extends StatelessWidget {
             ),
           );
         },
+      ),
+      bottomNavigationBar: CustomBottomNavigationBar(
+        currentIndex: -1,
+        args: ModalRoute.of(context)?.settings.arguments,
       ),
     );
   }

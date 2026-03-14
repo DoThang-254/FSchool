@@ -1,4 +1,4 @@
-﻿using BCrypt.Net;
+using BCrypt.Net;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -31,19 +31,34 @@ namespace Infrastructure.Data.Seeders
             var studentPassword = BCrypt.Net.BCrypt.HashPassword("123456");
             var staffPassword = BCrypt.Net.BCrypt.HashPassword("123456");
 
+            var studentRole = new Role { RoleName = "Student" };
+            var adminRole = new Role { RoleName = "Admin" };
+            var staffRole = new Role { RoleName = "Staff" };
+
+            await _context.Roles.AddRangeAsync(studentRole, adminRole, staffRole);
+
             var accounts = new List<Account>
             {
                 new Account
                 {
                     PhoneNumber = "0900000001",
                     PasswordHash = studentPassword,
-                    Role = "Student"
+                    Roles = new List<Role> { studentRole, adminRole }, // Seed multiple roles for this account
+                    Email = "thangmoneo2542004@gmail.com"
+                },
+                new Account
+                {
+                    PhoneNumber = "0900000003",
+                    PasswordHash = studentPassword,
+                    Roles = new List<Role> { adminRole },
+                    Email = "thangbachi2542004@gmail.com"
                 },
                 new Account
                 {
                     PhoneNumber = "0900000002",
                     PasswordHash = staffPassword,
-                    Role = "Staff"
+                    Roles = new List<Role> { staffRole },
+                    Email = "thangdqhe180102@fpt.edu.vn"
                 }
             };
 

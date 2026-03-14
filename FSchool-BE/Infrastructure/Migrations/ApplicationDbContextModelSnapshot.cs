@@ -37,19 +37,19 @@ namespace Infrastructure.Migrations
                     b.ToTable("AbsenceRequestSlot");
                 });
 
-            modelBuilder.Entity("ClubStudent", b =>
+            modelBuilder.Entity("AccountRole", b =>
                 {
-                    b.Property<int>("ClubsId")
+                    b.Property<int>("AccountsId")
                         .HasColumnType("int");
 
-                    b.Property<int>("StudentsId")
+                    b.Property<int>("RolesRoleId")
                         .HasColumnType("int");
 
-                    b.HasKey("ClubsId", "StudentsId");
+                    b.HasKey("AccountsId", "RolesRoleId");
 
-                    b.HasIndex("StudentsId");
+                    b.HasIndex("RolesRoleId");
 
-                    b.ToTable("ClubStudent");
+                    b.ToTable("AccountRoles", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.AbsenceRequest", b =>
@@ -94,16 +94,16 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("Role")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
@@ -149,6 +149,9 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("AdvisorStaffId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Category")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -157,6 +160,9 @@ namespace Infrastructure.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("FoundedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()
@@ -170,7 +176,12 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("AdvisorStaffId");
 
                     b.ToTable("Clubs");
                 });
@@ -183,7 +194,10 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ClubId")
+                    b.Property<decimal?>("Budget")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("ClubId")
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
@@ -205,6 +219,15 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<int?>("MaxParticipants")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("RoomId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -214,7 +237,39 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("ClubId");
 
+                    b.HasIndex("RoomId");
+
                     b.ToTable("Events");
+                });
+
+            modelBuilder.Entity("Domain.Entities.EventRegistration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AttendanceStatus")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EventId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("RegistrationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StudentId");
+
+                    b.HasIndex("EventId", "StudentId")
+                        .IsUnique();
+
+                    b.ToTable("EventRegistrations");
                 });
 
             modelBuilder.Entity("Domain.Entities.Grade", b =>
@@ -225,11 +280,23 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<double>("FinalTestScore")
+                        .HasColumnType("float");
+
+                    b.Property<double>("MiddleTestScore")
+                        .HasColumnType("float");
+
+                    b.Property<double>("OralScore")
+                        .HasColumnType("float");
+
                     b.Property<double>("Score")
                         .HasColumnType("float");
 
                     b.Property<int>("SemesterId")
                         .HasColumnType("int");
+
+                    b.Property<double>("SmallTestScore")
+                        .HasColumnType("float");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -251,6 +318,24 @@ namespace Infrastructure.Migrations
                     b.HasIndex("SubjectId");
 
                     b.ToTable("Grades");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Role", b =>
+                {
+                    b.Property<int>("RoleId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RoleId"));
+
+                    b.Property<string>("RoleName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.HasKey("RoleId");
+
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("Domain.Entities.Room", b =>
@@ -476,6 +561,42 @@ namespace Infrastructure.Migrations
                     b.ToTable("Students");
                 });
 
+            modelBuilder.Entity("Domain.Entities.StudentClub", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClubId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ClubRole")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("JoinDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LeftDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClubId");
+
+                    b.HasIndex("StudentId", "ClubId")
+                        .IsUnique();
+
+                    b.ToTable("StudentClubs");
+                });
+
             modelBuilder.Entity("Domain.Entities.Subject", b =>
                 {
                     b.Property<int>("Id")
@@ -532,17 +653,17 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ClubStudent", b =>
+            modelBuilder.Entity("AccountRole", b =>
                 {
-                    b.HasOne("Domain.Entities.Club", null)
+                    b.HasOne("Domain.Entities.Account", null)
                         .WithMany()
-                        .HasForeignKey("ClubsId")
+                        .HasForeignKey("AccountsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.Student", null)
+                    b.HasOne("Domain.Entities.Role", null)
                         .WithMany()
-                        .HasForeignKey("StudentsId")
+                        .HasForeignKey("RolesRoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -577,15 +698,48 @@ namespace Infrastructure.Migrations
                     b.Navigation("Student");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Club", b =>
+                {
+                    b.HasOne("Domain.Entities.Staff", "AdvisorStaff")
+                        .WithMany()
+                        .HasForeignKey("AdvisorStaffId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("AdvisorStaff");
+                });
+
             modelBuilder.Entity("Domain.Entities.Event", b =>
                 {
                     b.HasOne("Domain.Entities.Club", "Club")
                         .WithMany("Events")
-                        .HasForeignKey("ClubId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ClubId");
+
+                    b.HasOne("Domain.Entities.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId");
 
                     b.Navigation("Club");
+
+                    b.Navigation("Room");
+                });
+
+            modelBuilder.Entity("Domain.Entities.EventRegistration", b =>
+                {
+                    b.HasOne("Domain.Entities.Event", "Event")
+                        .WithMany("Registrations")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Student", "Student")
+                        .WithMany("EventRegistrations")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Event");
+
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("Domain.Entities.Grade", b =>
@@ -691,6 +845,25 @@ namespace Infrastructure.Migrations
                     b.Navigation("Account");
                 });
 
+            modelBuilder.Entity("Domain.Entities.StudentClub", b =>
+                {
+                    b.HasOne("Domain.Entities.Club", "Club")
+                        .WithMany("StudentClubs")
+                        .HasForeignKey("ClubId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Student", "Student")
+                        .WithMany("StudentClubs")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Club");
+
+                    b.Navigation("Student");
+                });
+
             modelBuilder.Entity("SchoolClassStudent", b =>
                 {
                     b.HasOne("Domain.Entities.SchoolClass", null)
@@ -718,6 +891,13 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Club", b =>
                 {
                     b.Navigation("Events");
+
+                    b.Navigation("StudentClubs");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Event", b =>
+                {
+                    b.Navigation("Registrations");
                 });
 
             modelBuilder.Entity("Domain.Entities.Room", b =>
@@ -761,7 +941,11 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("Attendances");
 
+                    b.Navigation("EventRegistrations");
+
                     b.Navigation("Grades");
+
+                    b.Navigation("StudentClubs");
                 });
 
             modelBuilder.Entity("Domain.Entities.Subject", b =>

@@ -1,4 +1,4 @@
-﻿namespace Domain.Entities
+namespace Domain.Entities
 {
     public class Student
     {
@@ -25,7 +25,10 @@
         public ICollection<AbsenceRequest> AbsenceRequests { get; set; }
         public ICollection<Attendance> Attendances { get; set; }
 
-        public ICollection<Club> Clubs { get; set; }
+        // Club membership (through join entity)
+        public ICollection<StudentClub> StudentClubs { get; set; }
 
+        // Event registrations
+        public ICollection<EventRegistration> EventRegistrations { get; set; }
     }
 }

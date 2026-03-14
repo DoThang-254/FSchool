@@ -1,45 +1,61 @@
 import 'package:flutter/material.dart';
+import 'package:bai1/models/absence_request.dart';
+import 'package:bai1/controllers/absence_request_controller.dart';
 
-class ReportScreen extends StatelessWidget {
+class ReportScreen extends StatefulWidget {
   const ReportScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // 1. Cập nhật dữ liệu giả lập cho khớp với wireframe
-    // Thêm trường 'title' (loại đơn) và 'duration' (thời gian nghỉ)
-    final List<Map<String, String>> history = [
-      {
-        'title': 'Request for Absent',
-        'duration': '1 Day',
-        'date': '12/02/2026',
-        'status': 'Approved',
-      },
-      {
-        'title': 'Request for Long Absent',
-        'duration': '3 Days',
-        'date': '10/02/2026',
-        'status': 'Rejected',
-      },
-      {
-        'title': 'Request for Absent',
-        'duration': '1 Day',
-        'date': '02/02/2026',
-        'status': 'Pending',
-      },
-      {
-        'title': 'Request for Absent',
-        'duration': '1 Day',
-        'date': '02/02/2026',
-        'status': 'Pending',
-      },
-    ];
+  State<ReportScreen> createState() => _ReportScreenState();
+}
 
+class _ReportScreenState extends State<ReportScreen> {
+  final AbsenceRequestController _controller = AbsenceRequestController();
+  List<AbsenceRequestModel> _requests = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchRequests();
+  }
+
+  int? _accountId;
+  int? _classId;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args != null) {
+      if (args is int) {
+        _accountId = args;
+      } else {
+        try {
+          _accountId = (args as dynamic).id;
+          _classId = (args as dynamic).classId;
+        } catch (e) {
+          debugPrint("ReportScreen: Error parsing arguments: $e");
+        }
+      }
+    }
+  }
+
+  Future<void> _fetchRequests() async {
+    final requests = await _controller.fetchAbsenceRequests(accountId: _accountId, classId: _classId);
+    setState(() {
+      _requests = requests;
+      _isLoading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:
-          Colors.grey[50], // Nền xám nhẹ làm nổi bật các Card trắng
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: const Text(
-          'My Requests', // Đổi tên cho thân thiện hơn
+          'My Requests',
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.orange,
@@ -60,47 +76,80 @@ class ReportScreen extends StatelessWidget {
           },
         ),
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(20),
-        itemCount: history.length,
-        itemBuilder: (context, index) {
-          final item = history[index];
-          return _buildReportCard(item);
-        },
-      ),
-      // Nút tạo đơn mới
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _requests.isEmpty
+              ? const Center(
+                  child: Text(
+                    'No requests yet',
+                    style: TextStyle(color: Colors.grey, fontSize: 16),
+                  ),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.all(20),
+                  itemCount: _requests.length,
+                  itemBuilder: (context, index) {
+                    final item = _requests[index];
+                    return _buildReportCard(item);
+                  },
+                ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.orange,
         elevation: 4,
         child: const Icon(Icons.add, color: Colors.white, size: 30),
-        onPressed: () {
-          Navigator.pushNamed(context, '/create-report');
+        onPressed: () async {
+          final result = await Navigator.pushNamed(
+            context,
+            '/create_report',
+            arguments: {
+              'accountId': _accountId,
+              'classId': _classId,
+            },
+          );
+          if (result == true) {
+            // Refresh list after creating a new request
+            setState(() => _isLoading = true);
+            _fetchRequests();
+          }
         },
       ),
     );
   }
 
-  // 2. Widget Card được thiết kế riêng (Custom Widget)
-  Widget _buildReportCard(Map<String, String> item) {
-    // Xác định màu sắc dựa trên trạng thái
+  Widget _buildReportCard(AbsenceRequestModel item) {
     Color statusColor = Colors.orange;
-    IconData statusIcon = Icons.access_time_filled; // Pending icon
+    IconData statusIcon = Icons.access_time_filled;
 
-    if (item['status'] == 'Approved') {
+    if (item.status == 'Approved') {
       statusColor = Colors.green;
       statusIcon = Icons.check_circle;
-    } else if (item['status'] == 'Rejected') {
+    } else if (item.status == 'Rejected') {
       statusColor = Colors.red;
       statusIcon = Icons.cancel;
     }
+
+    // Parse date for display
+    String displayDate = '';
+    try {
+      DateTime parsedDate = DateTime.parse(item.date);
+      displayDate =
+          '${parsedDate.day.toString().padLeft(2, '0')}/${parsedDate.month.toString().padLeft(2, '0')}/${parsedDate.year}';
+    } catch (_) {
+      displayDate = item.date;
+    }
+
+    // Build slot names for duration info
+    String slotInfo = item.slots.isNotEmpty
+        ? item.slots.map((s) => s.slotName).join(', ')
+        : 'N/A';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16), // Bo góc mềm mại
-        border: Border.all(color: Colors.grey.shade200), // Viền mỏng
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -112,7 +161,6 @@ class ReportScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Hàng 1: Icon tài liệu + Tiêu đề + Trạng thái
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -129,65 +177,159 @@ class ReportScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      item['title']!,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    // Badge trạng thái nhỏ gọn
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: statusColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(statusIcon, size: 12, color: statusColor),
-                          const SizedBox(width: 4),
-                          Text(
-                            item['status']!,
-                            style: TextStyle(
-                              color: statusColor,
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                            ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Request for Absent',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
                           ),
-                        ],
-                      ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: statusColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(statusIcon, size: 12, color: statusColor),
+                              const SizedBox(width: 4),
+                              Text(
+                                item.status,
+                                style: TextStyle(
+                                  color: statusColor,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
             ],
           ),
-
           const SizedBox(height: 12),
           Divider(color: Colors.grey.shade100, height: 1),
           const SizedBox(height: 12),
-
-          // Hàng 2: Thông tin chi tiết (Time, Created Date)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildInfoColumn("Time", item['duration']!),
-              _buildInfoColumn("Created Date", item['date']!),
+              _buildInfoColumn("Slots", slotInfo),
+              _buildInfoColumn("Date", displayDate),
             ],
+          ),
+          if (item.reason.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                'Reason: ${item.reason}',
+                style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+              ),
+            ),
+          ],
+          if (item.status == 'Pending') ...[
+            const SizedBox(height: 16),
+            const Divider(height: 1),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    final result = await Navigator.pushNamed(
+                      context,
+                      '/create_report',
+                      arguments: {
+                        'accountId': _accountId,
+                        'editRequest': item,
+                      },
+                    );
+                    if (result == true) {
+                      setState(() => _isLoading = true);
+                      _fetchRequests();
+                    }
+                  },
+                  icon: const Icon(Icons.edit, size: 16),
+                  label: const Text("Sửa"),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.blue,
+                    side: const BorderSide(color: Colors.blue),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                OutlinedButton.icon(
+                  onPressed: () => _showDeleteConfirmation(item.id),
+                  icon: const Icon(Icons.delete, size: 16),
+                  label: const Text("Xóa"),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.red,
+                    side: const BorderSide(color: Colors.red),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteConfirmation(int id) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Xác nhận xóa"),
+        content: const Text("Bạn có chắc chắn muốn xóa đơn nghỉ này không?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Hủy"),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              setState(() => _isLoading = true);
+              final success = await _controller.deleteAbsenceRequest(id);
+              if (success) {
+                _fetchRequests();
+              } else {
+                setState(() => _isLoading = false);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Xóa thất bại")),
+                );
+              }
+            },
+            child: const Text("Xóa", style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
     );
   }
 
-  // Widget con hiển thị cột thông tin nhỏ
   Widget _buildInfoColumn(String label, String value) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

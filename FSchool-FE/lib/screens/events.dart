@@ -1,37 +1,37 @@
-import 'package:bai1/screens/event-details.dart';
+import 'package:bai1/screens/event_details.dart';
+import 'package:bai1/widgets/custom_bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:bai1/models/event.dart';
+import 'package:bai1/controllers/event_controller.dart';
 
-class EventsScreen extends StatelessWidget {
+class EventsScreen extends StatefulWidget {
   const EventsScreen({super.key});
 
   @override
+  State<EventsScreen> createState() => _EventsScreenState();
+}
+
+class _EventsScreenState extends State<EventsScreen> {
+  final EventController _controller = EventController();
+  List<EventModel> _events = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchEvents();
+  }
+
+  Future<void> _fetchEvents() async {
+    final events = await _controller.fetchEvents();
+    setState(() {
+      _events = events;
+      _isLoading = false;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> events = [
-      {
-        'title': 'School Sports Day',
-        'date': '20 Mar 2026',
-        'location': 'Main Stadium',
-        'image': 'https://picsum.photos/id/1/500/300',
-        'description':
-            'Join us for the annual School Sports Day! A day full of energy, competition, and fun. All students are required to participate in at least one activity.',
-      },
-      {
-        'title': 'Science Fair 2026',
-        'date': '15 Apr 2026',
-        'location': 'Hall A',
-        'image': 'https://picsum.photos/id/20/500/300',
-        'description':
-            'Showcase your innovative projects at the Science Fair. Prizes await the most creative minds!',
-      },
-      {
-        'title': 'Music Festival',
-        'date': '01 May 2026',
-        'location': 'School Yard',
-        'image': 'https://picsum.photos/id/36/500/300',
-        'description':
-            'Enjoy performances from our talented school bands and special guests.',
-      },
-    ];
 
     return Scaffold(
       appBar: AppBar(
@@ -49,17 +49,30 @@ class EventsScreen extends StatelessWidget {
           },
         ),
       ),
-      body: ListView.builder(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : ListView.builder(
         padding: const EdgeInsets.all(16),
-        itemCount: events.length,
+        itemCount: _events.length,
         itemBuilder: (context, index) {
-          final event = events[index];
+          final event = _events[index];
           return GestureDetector(
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => EventDetailScreen(event: event),
+                  builder: (context) => EventDetailScreen(event: {
+                    'id': event.id,
+                    'title': event.title,
+                    'date': event.date,
+                    'location': event.location,
+                    'image': event.image ?? 'https://via.placeholder.com/500',
+                    'description': event.description ?? '',
+                    'status': event.status ?? '',
+                    'registrationCount': event.registrationCount,
+                    'budget': event.budget,
+                    'maxParticipants': event.maxParticipants,
+                  }),
                 ),
               );
             },
@@ -74,7 +87,7 @@ class EventsScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Image.network(
-                    event['image'],
+                    event.image ?? 'https://via.placeholder.com/500',
                     height: 150,
                     width: double.infinity,
                     fit: BoxFit.cover,
@@ -96,7 +109,7 @@ class EventsScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          event['title'],
+                          event.title,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -112,7 +125,7 @@ class EventsScreen extends StatelessWidget {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              event['date'],
+                              event.date,
                               style: TextStyle(color: Colors.grey[600]),
                             ),
                             const SizedBox(width: 16),
@@ -123,7 +136,7 @@ class EventsScreen extends StatelessWidget {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              event['location'],
+                              event.location,
                               style: TextStyle(color: Colors.grey[600]),
                             ),
                           ],
@@ -136,6 +149,10 @@ class EventsScreen extends StatelessWidget {
             ),
           );
         },
+      ),
+      bottomNavigationBar: CustomBottomNavigationBar(
+        currentIndex: -1,
+        args: ModalRoute.of(context)?.settings.arguments,
       ),
     );
   }

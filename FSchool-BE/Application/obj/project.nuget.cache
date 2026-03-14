@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "NuOEjf3m2dg=",
+  "dgSpecHash": "scBAy/G2v/0=",
   "success": true,
   "projectFilePath": "D:\\Mobile\\Git\\FSchool-BE\\Application\\Application.csproj",
   "expectedPackageFiles": [
@@ -8,10 +8,16 @@
     "C:\\Users\\thang\\.nuget\\packages\\bcrypt.net-next\\4.1.0\\bcrypt.net-next.4.1.0.nupkg.sha512",
     "C:\\Users\\thang\\.nuget\\packages\\fluentvalidation\\11.9.0\\fluentvalidation.11.9.0.nupkg.sha512",
     "C:\\Users\\thang\\.nuget\\packages\\fluentvalidation.dependencyinjectionextensions\\11.9.0\\fluentvalidation.dependencyinjectionextensions.11.9.0.nupkg.sha512",
+    "C:\\Users\\thang\\.nuget\\packages\\google.apis\\1.73.0\\google.apis.1.73.0.nupkg.sha512",
+    "C:\\Users\\thang\\.nuget\\packages\\google.apis.auth\\1.73.0\\google.apis.auth.1.73.0.nupkg.sha512",
+    "C:\\Users\\thang\\.nuget\\packages\\google.apis.core\\1.73.0\\google.apis.core.1.73.0.nupkg.sha512",
+    "C:\\Users\\thang\\.nuget\\packages\\microsoft.extensions.caching.abstractions\\8.0.0\\microsoft.extensions.caching.abstractions.8.0.0.nupkg.sha512",
     "C:\\Users\\thang\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\6.0.0\\microsoft.extensions.dependencyinjection.abstractions.6.0.0.nupkg.sha512",
     "C:\\Users\\thang\\.nuget\\packages\\microsoft.extensions.options\\6.0.0\\microsoft.extensions.options.6.0.0.nupkg.sha512",
-    "C:\\Users\\thang\\.nuget\\packages\\microsoft.extensions.primitives\\6.0.0\\microsoft.extensions.primitives.6.0.0.nupkg.sha512",
-    "C:\\Users\\thang\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\6.0.0\\system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512"
+    "C:\\Users\\thang\\.nuget\\packages\\microsoft.extensions.primitives\\8.0.0\\microsoft.extensions.primitives.8.0.0.nupkg.sha512",
+    "C:\\Users\\thang\\.nuget\\packages\\newtonsoft.json\\13.0.4\\newtonsoft.json.13.0.4.nupkg.sha512",
+    "C:\\Users\\thang\\.nuget\\packages\\system.codedom\\7.0.0\\system.codedom.7.0.0.nupkg.sha512",
+    "C:\\Users\\thang\\.nuget\\packages\\system.management\\7.0.2\\system.management.7.0.2.nupkg.sha512"
   ],
   "logs": []
 }

@@ -1,4 +1,4 @@
-﻿
+
 namespace Domain.Entities
 {
     public class Grade
@@ -6,7 +6,12 @@ namespace Domain.Entities
         [Key]
         public int Id { get; set; }
 
-        public double Score { get; set; }
+        public double OralScore { get; set; } // Hệ số 1
+        public double SmallTestScore { get; set; } // Hệ số 1 (15 phút)
+        public double MiddleTestScore { get; set; } // Hệ số 2 (45 phút)
+        public double FinalTestScore { get; set; } // Hệ số 3 (Học kỳ)
+
+        public double Score { get; set; } // Trung bình môn (Weighted Average)
 
         [MaxLength(20)]
         public string Status { get; set; } // Passed, Failed

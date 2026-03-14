@@ -1,42 +1,134 @@
+import 'package:bai1/widgets/custom_bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:bai1/models/news.dart';
+import 'package:bai1/controllers/news_controller.dart';
 
 final List<Map<String, dynamic>> menuItems = [
-  {'icon': Icons.assignment, 'label': 'Mark Report', 'route': '/mark-report'},
-  {'icon': Icons.check_circle_outline, 'label': 'Report', 'route': '/report'},
-  {'icon': Icons.calendar_today, 'label': 'Schedule', 'route': '/schedule'},
-  {'icon': Icons.newspaper, 'label': 'Events', 'route': '/events'},
-  {'icon': Icons.people, 'label': 'Clubs', 'route': '/clubs'},
-  {'icon': Icons.computer, 'label': 'E-Learn', 'route': null},
-  {'icon': Icons.phone, 'label': 'Contact', 'route': null},
-  {'icon': Icons.bed, 'label': 'Dorm', 'route': null},
+  {
+    'icon': Icons.assignment,
+    'label': 'Mark Report',
+    'route': '/mark_report',
+    'roles': ['Student', 'Staff'],
+  },
+  {
+    'icon': Icons.description,
+    'label': 'Reports',
+    'route': '/report',
+    'roles': ['Student'],
+  },
+  {
+    'icon': Icons.assignment_turned_in,
+    'label': 'Absences',
+    'route': '/manage_absences',
+    'roles': ['Staff'],
+  },
+  {
+    'icon': Icons.calendar_today,
+    'label': 'Schedule',
+    'route': '/schedule',
+    'roles': ['Student', 'Staff'],
+  },
+  {
+    'icon': Icons.newspaper,
+    'label': 'Events',
+    'route': '/events',
+    'roles': ['Student', 'Admin'],
+  },
+  {
+    'icon': Icons.people,
+    'label': 'Clubs',
+    'route': '/clubs',
+    'roles': ['Student', 'Admin'],
+  },
+  // {
+  //   'icon': Icons.computer,
+  //   'label': 'E-Learn',
+  //   'route': null,
+  //   'roles': ['Student'],
+  // },
+  // {
+  //   'icon': Icons.phone,
+  //   'label': 'Contact',
+  //   'route': null,
+  //   'roles': ['Student', 'Staff', 'Admin'],
+  // },
+  // {
+  //   'icon': Icons.bed,
+  //   'label': 'Dorm',
+  //   'route': null,
+  //   'roles': ['Student'],
+  // },
+  {
+    'icon': Icons.admin_panel_settings,
+    'label': 'Admin Account',
+    'route': '/admin_account',
+    'roles': ['Admin'],
+  },
+  {
+    'icon': Icons.assignment_ind,
+    'label': 'Class Assignment',
+    'route': '/class_assignment',
+    'roles': ['Admin'],
+  },
+  {
+    'icon': Icons.edit_calendar,
+    'label': 'Manage Schedule',
+    'route': '/manage_schedule',
+    'roles': ['Admin'],
+  },
 ];
 
-final List<Map<String, dynamic>> newsItems = [
-  {
-    "title": "News1",
-    "content": "flower1",
-    "image":
-        "https://www.foxroad.co.nz/cdn/shop/articles/flowers-nature-pictures_900x.jpg?v=1725492833",
-  },
-  {
-    "title": "News2",
-    "content": "flower1",
-    "image":
-        "https://www.gardenia.net/wp-content/uploads/2023/05/freesia-780x520.webp",
-  },
-  {
-    "title": "News3",
-    "content": "flower1",
-    "image":
-        "https://hips.hearstapps.com/hmg-prod/images/sacred-lotus-gettyimages-1143403162-646fa5a441f5d.jpg?crop=0.535xw:1.00xh;0.0519xw,0",
-  },
-];
-
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
   const Home({super.key});
 
   @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  final NewsController _controller = NewsController();
+  List<News> _newsItems = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchNews();
+  }
+
+  Future<void> _fetchNews() async {
+    final news = await _controller.fetchNews();
+    setState(() {
+      _newsItems = news;
+      _isLoading = false;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final args = ModalRoute.of(context)?.settings.arguments as dynamic;
+
+    // Trích xuất thông tin (thêm fallback phòng trường hợp null)
+    final String fullName = args?.fullName ?? "Người dùng ẩn danh";
+    final String role = (args?.role ?? "Student").toString().trim();
+    final String rollNumber = args?.rollNumber ?? "N/A";
+
+    // Split comma-separated roles (e.g. "Student,Admin") into a list
+    final List<String> userRoles = role
+        .split(',')
+        .map((r) => r.trim().toLowerCase())
+        .toList();
+
+    final filteredItems = menuItems.where((item) {
+      final List<String> roles = List<String>.from(item['roles'] ?? []);
+      return roles.any((r) => userRoles.contains(r.trim().toLowerCase()));
+    }).toList();
+
+    debugPrint("Home: Current Role: '$role'");
+    debugPrint(
+      "Home: Filtered Items: ${filteredItems.map((e) => e['label']).toList()}",
+    );
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
@@ -55,7 +147,7 @@ class Home extends StatelessWidget {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  "Đỗ Quang Thắng",
+                  fullName,
                   style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -66,11 +158,14 @@ class Home extends StatelessWidget {
                 child: Text.rich(
                   TextSpan(
                     children: [
-                      const TextSpan(text: "Class: 12A1 - Roll Number: "),
-                      TextSpan(
-                        text: "FS123456",
-                        style: TextStyle(color: Colors.orange),
-                      ),
+                      TextSpan(text: "Role: $role"),
+                      if (userRoles.contains("student")) ...[
+                        TextSpan(text: " - Roll Number: "),
+                        TextSpan(
+                          text: rollNumber,
+                          style: TextStyle(color: Colors.orange),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -83,13 +178,54 @@ class Home extends StatelessWidget {
                 childAspectRatio: 0.85,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                children: List.generate(menuItems.length, (index) {
-                  final item = menuItems[index];
+                children: List.generate(filteredItems.length, (index) {
+                  final item = filteredItems[index];
 
                   return GestureDetector(
                     onTap: () {
                       if (item['route'] != null) {
-                        Navigator.pushNamed(context, item['route']);
+                        // Pass specific arguments for different screens
+                        if (item['route'] == '/report') {
+                          Navigator.pushNamed(
+                            context,
+                            item['route'],
+                            arguments: args,
+                          );
+                        } else if (item['route'] == '/schedule') {
+                          Navigator.pushNamed(
+                            context,
+                            item['route'],
+                            arguments: args,
+                          );
+                        } else if (item['route'] == '/mark_report') {
+                          if (userRoles.contains("staff")) {
+                            Navigator.pushNamed(
+                              context,
+                              '/manage_grades',
+                              arguments: args,
+                            );
+                          } else {
+                            Navigator.pushNamed(
+                              context,
+                              item['route'],
+                              arguments: args?.studentId,
+                            );
+                          }
+                        } else if (item['route'] == '/events') {
+                          if (userRoles.contains("staff")) {
+                            Navigator.pushNamed(context, '/manage_events');
+                          } else {
+                            Navigator.pushNamed(context, item['route']);
+                          }
+                        } else if (item['route'] == '/clubs') {
+                          if (userRoles.contains("staff")) {
+                            Navigator.pushNamed(context, '/manage_clubs');
+                          } else {
+                            Navigator.pushNamed(context, item['route']);
+                          }
+                        } else {
+                          Navigator.pushNamed(context, item['route']);
+                        }
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -132,86 +268,75 @@ class Home extends StatelessWidget {
                 }),
               ),
 
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: newsItems.length,
-                itemBuilder: (context, index) {
-                  final item = newsItems[index];
+              _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: _newsItems.length,
+                      itemBuilder: (context, index) {
+                        final item = _newsItems[index];
 
-                  return Container(
-                    margin: const EdgeInsets.all(8),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Center(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Image.network(
-                                    item["image"],
-                                    width: 1000,
-                                    height: 500,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                Text(
-                                  item["title"]!,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  softWrap: true,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  item["content"]!,
-                                  maxLines: 3,
-                                  overflow: TextOverflow.ellipsis,
-                                  softWrap: true,
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                              ],
-                            ),
+                        return Container(
+                          margin: const EdgeInsets.all(8),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                        ),
-                      ],
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Center(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Image.network(
+                                          item.image ??
+                                              'https://via.placeholder.com/1000x500',
+                                          width: 1000,
+                                          height: 500,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (ctx, err, stack) =>
+                                              const Icon(Icons.image, size: 50),
+                                        ),
+                                      ),
+                                      Text(
+                                        item.title,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        softWrap: true,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        item.content ?? '',
+                                        maxLines: 3,
+                                        overflow: TextOverflow.ellipsis,
+                                        softWrap: true,
+                                        style: const TextStyle(fontSize: 14),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: ClipRRect(
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
-        ),
-        child: BottomNavigationBar(
-          selectedItemColor: Colors.orange,
-          unselectedItemColor: Colors.grey,
-          backgroundColor: Colors.white,
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
-              label: "Settings",
-            ),
-            BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
-          ],
-        ),
+      bottomNavigationBar: CustomBottomNavigationBar(
+        currentIndex: 0,
+        args: args,
       ),
     );
   }
