@@ -49,7 +49,7 @@ class _CourseRegistrationScreenState extends State<CourseRegistrationScreen> {
 
   Future<void> _handleRegister() async {
     if (_selectedSubjectId == null || _selectedSemesterId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Vui lòng chọn môn học và học kỳ')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select subject and semester')));
       return;
     }
 
@@ -61,7 +61,7 @@ class _CourseRegistrationScreenState extends State<CourseRegistrationScreen> {
         semesterId: _selectedSemesterId!,
       );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đăng ký thành công!')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Registration successful!')));
         Navigator.pop(context);
       }
     } catch (e) {
@@ -74,7 +74,11 @@ class _CourseRegistrationScreenState extends State<CourseRegistrationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Đăng ký môn học')),
+      appBar: AppBar(
+        title: const Text('Course Registration', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.orange,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
       body: _isLoading 
         ? const Center(child: CircularProgressIndicator())
         : Padding(
@@ -82,7 +86,7 @@ class _CourseRegistrationScreenState extends State<CourseRegistrationScreen> {
             child: Column(
               children: [
                 DropdownButtonFormField<int>(
-                  decoration: const InputDecoration(labelText: 'Chọn môn học'),
+                  decoration: const InputDecoration(labelText: 'Select Subject'),
                   items: _subjects.map((s) => DropdownMenuItem<int>(
                     value: s['id'],
                     child: Text(s['subjectName']),
@@ -91,7 +95,7 @@ class _CourseRegistrationScreenState extends State<CourseRegistrationScreen> {
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<int>(
-                   decoration: const InputDecoration(labelText: 'Chọn học kỳ'),
+                   decoration: const InputDecoration(labelText: 'Select Semester'),
                    value: _selectedSemesterId,
                    items: _semesters.map((s) => DropdownMenuItem<int>(
                      value: s['id'],
@@ -102,7 +106,15 @@ class _CourseRegistrationScreenState extends State<CourseRegistrationScreen> {
                 const SizedBox(height: 32),
                 ElevatedButton(
                   onPressed: _isModifying ? null : _handleRegister,
-                  child: _isModifying ? const CircularProgressIndicator() : const Text('ĐĂNG KÝ'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: _isModifying 
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) 
+                    : const Text('REGISTER', style: TextStyle(fontWeight: FontWeight.bold)),
                 )
               ],
             ),

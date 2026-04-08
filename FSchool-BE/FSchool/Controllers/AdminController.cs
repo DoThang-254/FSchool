@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Application.Interfaces.Services;
 using Application.DTOs.Admin;
 using Microsoft.AspNetCore.Mvc;
@@ -6,6 +7,7 @@ namespace FSchool.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class AdminController : ControllerBase
     {
         private readonly IAuthService _authService;

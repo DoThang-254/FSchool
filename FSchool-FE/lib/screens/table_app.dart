@@ -9,7 +9,7 @@ class TableApp extends StatelessWidget {
       title: 'Timetable UI',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
         useMaterial3: true,
       ),
       home: const HomeWidget(),
@@ -40,7 +40,7 @@ class _HomeWidgetState extends State<HomeWidget> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("FPT Timetable"),
-        backgroundColor: Colors.blue.shade100,
+        backgroundColor: Colors.orange.shade100,
       ),
       body: SafeArea(
         child: SingleChildScrollView(

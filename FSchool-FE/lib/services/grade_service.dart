@@ -1,3 +1,4 @@
+import 'package:bai1/services/api_client.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:bai1/config/api_config.dart';
@@ -14,7 +15,7 @@ class GradeService {
       url += '?' + params.join('&');
     }
 
-    final response = await http.get(Uri.parse(url));
+    final response = await ApiClient.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
       Iterable list = json.decode(response.body);
@@ -25,7 +26,7 @@ class GradeService {
   }
 
   Future<Map<String, List<String>>> getFilterOptions() async {
-    final response = await http.get(Uri.parse(ApiConfig.getSemesterFilters));
+    final response = await ApiClient.get(Uri.parse(ApiConfig.getSemesterFilters));
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       return {
@@ -38,7 +39,7 @@ class GradeService {
   }
 
   Future<List<Map<String, dynamic>>> getClasses() async {
-    final response = await http.get(Uri.parse(ApiConfig.getClasses));
+    final response = await ApiClient.get(Uri.parse(ApiConfig.getClasses));
     if (response.statusCode == 200) {
       return List<Map<String, dynamic>>.from(json.decode(response.body));
     } else {
@@ -47,7 +48,7 @@ class GradeService {
   }
 
   Future<List<Map<String, dynamic>>> getSemesters() async {
-    final response = await http.get(Uri.parse(ApiConfig.getSemesters));
+    final response = await ApiClient.get(Uri.parse(ApiConfig.getSemesters));
     if (response.statusCode == 200) {
       return List<Map<String, dynamic>>.from(json.decode(response.body));
     } else {
@@ -56,7 +57,7 @@ class GradeService {
   }
 
   Future<List<Map<String, dynamic>>> getClassesByStaff(int staffId) async {
-    final response = await http.get(Uri.parse('${ApiConfig.getClassesByStaff}/$staffId/classes'));
+    final response = await ApiClient.get(Uri.parse('${ApiConfig.getClassesByStaff}/$staffId/classes'));
     if (response.statusCode == 200) {
       return List<Map<String, dynamic>>.from(json.decode(response.body));
     } else {
@@ -65,7 +66,7 @@ class GradeService {
   }
 
   Future<List<Map<String, dynamic>>> getSubjectsByStaff(int staffId) async {
-    final response = await http.get(Uri.parse('${ApiConfig.getSubjectsByStaff}/$staffId/subjects'));
+    final response = await ApiClient.get(Uri.parse('${ApiConfig.getSubjectsByStaff}/$staffId/subjects'));
     if (response.statusCode == 200) {
       return List<Map<String, dynamic>>.from(json.decode(response.body));
     } else {
@@ -74,7 +75,7 @@ class GradeService {
   }
 
   Future<List<Map<String, dynamic>>> getStudentsByClass(int classId) async {
-    final response = await http.get(Uri.parse('${ApiConfig.getClasses}/$classId/students'));
+    final response = await ApiClient.get(Uri.parse('${ApiConfig.getClasses}/$classId/students'));
     if (response.statusCode == 200) {
       return List<Map<String, dynamic>>.from(json.decode(response.body));
     } else {
@@ -83,7 +84,7 @@ class GradeService {
   }
 
   Future<List<Map<String, dynamic>>> getSubjects() async {
-    final response = await http.get(Uri.parse(ApiConfig.getSubjects));
+    final response = await ApiClient.get(Uri.parse(ApiConfig.getSubjects));
     if (response.statusCode == 200) {
       return List<Map<String, dynamic>>.from(json.decode(response.body));
     } else {
@@ -92,7 +93,7 @@ class GradeService {
   }
 
   Future<void> updateGrade(Map<String, dynamic> gradeData) async {
-    final response = await http.post(
+    final response = await ApiClient.post(
       Uri.parse(ApiConfig.updateGrade),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(gradeData),

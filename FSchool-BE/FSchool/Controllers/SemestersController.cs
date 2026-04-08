@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Application.DTOs.Semester;
 using Domain.Entities;
 using Infrastructure.Data;
@@ -8,6 +9,7 @@ namespace FSchool.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class SemestersController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

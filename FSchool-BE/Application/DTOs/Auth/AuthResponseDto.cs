@@ -21,6 +21,10 @@ namespace Application.DTOs.Auth
         public int? ClassId { get; set; }
         public int? StudentId { get; set; }
         public int? StaffId { get; set; }
+
+        // 2FA fields
+        public bool RequiresTwoFactor { get; set; } = false;
+        public string? PhoneNumber { get; set; }
     }
 }
 

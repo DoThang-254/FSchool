@@ -40,4 +40,5 @@ class ApiConfig {
   // "$getEvents/$id/register?studentId=$sid", "$getEvents/$id/checkin/$sid"
   // "$getEvents/$id/complete", "$getEvents/$id/registrations"
   // "$getEvents/$id/my-status?studentId=$sid", "$getEvents/$id/cancel"
+  static const String uploadImage = "$baseUrl/Upload";
 }

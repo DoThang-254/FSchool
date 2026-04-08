@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:bai1/models/event.dart';
 import 'package:bai1/models/event_registration.dart';
 import 'package:bai1/services/event_service.dart';
+import 'package:bai1/services/upload_service.dart';
 import 'package:intl/intl.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ManageEventsScreen extends StatefulWidget {
   const ManageEventsScreen({super.key});
@@ -13,6 +15,7 @@ class ManageEventsScreen extends StatefulWidget {
 
 class _ManageEventsScreenState extends State<ManageEventsScreen> with SingleTickerProviderStateMixin {
   final EventService _eventService = EventService();
+  final UploadService _uploadService = UploadService();
   List<EventModel> _allEvents = [];
   bool _isLoading = true;
   late TabController _tabController;
@@ -52,9 +55,10 @@ class _ManageEventsScreenState extends State<ManageEventsScreen> with SingleTick
     final titleController = TextEditingController(text: event?.title);
     final locationController = TextEditingController(text: event?.location);
     final descController = TextEditingController(text: event?.description);
+    final imageController = TextEditingController(text: event?.image);
     final budgetController = TextEditingController(text: event?.budget?.toString() ?? '');
     final maxPartController = TextEditingController(text: event?.maxParticipants?.toString() ?? '');
-    DateTime selectedDate = DateTime.now();
+    DateTime selectedDate = (event != null && event.date.isNotEmpty) ? DateFormat('dd MMM yyyy').parse(event.date) : DateTime.now();
 
     showDialog(
       context: context,
@@ -68,6 +72,54 @@ class _ManageEventsScreenState extends State<ManageEventsScreen> with SingleTick
                 TextField(controller: titleController, decoration: const InputDecoration(labelText: "Title")),
                 TextField(controller: locationController, decoration: const InputDecoration(labelText: "Location")),
                 TextField(controller: descController, decoration: const InputDecoration(labelText: "Description"), maxLines: 3),
+                const SizedBox(height: 10),
+                StatefulBuilder(
+                  builder: (context, setPicState) => Column(
+                    children: [
+                      if (imageController.text.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Stack(
+                            children: [
+                              Image.network(
+                                imageController.text, 
+                                height: 100, 
+                                width: double.infinity, 
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) => Container(
+                                  height: 100,
+                                  color: Colors.grey[200],
+                                  child: const Icon(Icons.broken_image, size: 40, color: Colors.grey),
+                                ),
+                              ),
+                              Positioned(
+                                right: 0,
+                                child: IconButton(
+                                  icon: const Icon(Icons.cancel, color: Colors.red),
+                                  onPressed: () => setPicState(() => imageController.clear()),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      OutlinedButton.icon(
+                        icon: const Icon(Icons.image),
+                        label: Text(imageController.text.isEmpty ? "Upload Image" : "Change Image"),
+                        onPressed: () async {
+                          final picker = ImagePicker();
+                          final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
+                          if (pickedFile != null) {
+                            final uploadedUrl = await _uploadService.uploadImage(pickedFile);
+                            if (uploadedUrl != null) {
+                              setPicState(() => imageController.text = uploadedUrl);
+                              setDialogState(() {});
+                            }
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
                 TextField(controller: budgetController, decoration: const InputDecoration(labelText: "Budget"), keyboardType: TextInputType.number),
                 TextField(controller: maxPartController, decoration: const InputDecoration(labelText: "Max Participants"), keyboardType: TextInputType.number),
                 const SizedBox(height: 10),
@@ -102,6 +154,7 @@ class _ManageEventsScreenState extends State<ManageEventsScreen> with SingleTick
                   "title": titleController.text,
                   "location": locationController.text,
                   "description": descController.text,
+                  "imageUrl": imageController.text,
                   "eventDate": selectedDate.toIso8601String(),
                   "isNews": false,
                   "budget": double.tryParse(budgetController.text),
@@ -133,7 +186,7 @@ class _ManageEventsScreenState extends State<ManageEventsScreen> with SingleTick
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(success ? '${event.title} đã được duyệt!' : 'Lỗi!'),
+          content: Text(success ? '${event.title} has been approved!' : 'Error!'),
           backgroundColor: success ? Colors.green : Colors.red,
         ),
       );
@@ -146,7 +199,7 @@ class _ManageEventsScreenState extends State<ManageEventsScreen> with SingleTick
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(success ? '${event.title} đã được publish!' : 'Lỗi!'),
+          content: Text(success ? '${event.title} has been published!' : 'Error!'),
           backgroundColor: success ? Colors.green : Colors.red,
         ),
       );
@@ -258,94 +311,114 @@ class _ManageEventsScreenState extends State<ManageEventsScreen> with SingleTick
       itemBuilder: (context, index) {
         final event = events[index];
         return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          child: ListTile(
-            title: Text(event.title, style: const TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("${event.date} - ${event.location}"),
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: _getStatusColor(event.status ?? ''),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        event.status ?? '',
-                        style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                      ),
+          elevation: 2,
+          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          child: Column(
+            children: [
+              if (event.image != null && event.image!.isNotEmpty)
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                  child: Image.network(
+                    event.image!,
+                    height: 150,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      height: 150,
+                      color: Colors.grey[200],
+                      child: const Icon(Icons.broken_image, size: 50, color: Colors.grey),
                     ),
-                    const SizedBox(width: 8),
-                    Text('${event.registrationCount} registered', style: const TextStyle(fontSize: 12)),
+                  ),
+                ),
+              ListTile(
+                title: Text(event.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("${event.date} - ${event.location}"),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: _getStatusColor(event.status ?? ''),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            event.status ?? '',
+                            style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text('${event.registrationCount} registered', style: const TextStyle(fontSize: 12)),
+                      ],
+                    ),
                   ],
                 ),
-              ],
-            ),
-            isThreeLine: true,
-            trailing: PopupMenuButton<String>(
-              onSelected: (value) async {
-                switch (value) {
-                  case 'approve':
-                    _approveEvent(event);
-                    break;
-                  case 'publish':
-                    _publishEvent(event);
-                    break;
-                  case 'registrations':
-                    _showRegistrationsDialog(event);
-                    break;
-                  case 'complete':
-                    _completeEvent(event);
-                    break;
-                  case 'edit':
-                    _showEventDialog(event);
-                    break;
-                  case 'delete':
-                    final confirm = await showDialog<bool>(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text("Delete Event"),
-                        content: const Text("Are you sure?"),
-                        actions: [
-                          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("No")),
-                          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text("Yes")),
-                        ],
-                      ),
-                    );
-                    if (confirm == true) {
-                      await _eventService.deleteEvent(int.parse(event.id));
-                      _fetchEvents();
+                isThreeLine: true,
+                trailing: PopupMenuButton<String>(
+                  onSelected: (value) async {
+                    switch (value) {
+                      case 'approve':
+                        _approveEvent(event);
+                        break;
+                      case 'publish':
+                        _publishEvent(event);
+                        break;
+                      case 'registrations':
+                        _showRegistrationsDialog(event);
+                        break;
+                      case 'complete':
+                        _completeEvent(event);
+                        break;
+                      case 'edit':
+                        _showEventDialog(event);
+                        break;
+                      case 'delete':
+                        final confirm = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text("Delete Event"),
+                            content: const Text("Are you sure?"),
+                            actions: [
+                              TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("No")),
+                              TextButton(onPressed: () => Navigator.pop(context, true), child: const Text("Yes")),
+                            ],
+                          ),
+                        );
+                        if (confirm == true) {
+                          await _eventService.deleteEvent(int.parse(event.id));
+                          _fetchEvents();
+                        }
+                        break;
+                      case 'cancel':
+                        await _eventService.cancelEvent(int.parse(event.id));
+                        _fetchEvents();
+                        break;
                     }
-                    break;
-                  case 'cancel':
-                    await _eventService.cancelEvent(int.parse(event.id));
-                    _fetchEvents();
-                    break;
-                }
-              },
-              itemBuilder: (context) {
-                final items = <PopupMenuItem<String>>[];
-                if (event.status == 'Pending') {
-                  items.add(const PopupMenuItem(value: 'approve', child: Text('✅ Approve')));
-                }
-                if (event.status == 'Approved') {
-                  items.add(const PopupMenuItem(value: 'publish', child: Text('📢 Publish')));
-                }
-                if (event.status == 'Published' || event.status == 'Ongoing') {
-                  items.add(const PopupMenuItem(value: 'registrations', child: Text('👥 Registrations & Check-in')));
-                  items.add(const PopupMenuItem(value: 'complete', child: Text('✓ Complete')));
-                }
-                items.add(const PopupMenuItem(value: 'edit', child: Text('✏️ Edit')));
-                if (event.status != 'Completed') {
-                  items.add(const PopupMenuItem(value: 'cancel', child: Text('❌ Cancel')));
-                }
-                items.add(const PopupMenuItem(value: 'delete', child: Text('🗑️ Delete')));
-                return items;
-              },
-            ),
+                  },
+                  itemBuilder: (context) {
+                    final items = <PopupMenuItem<String>>[];
+                    if (event.status == 'Pending') {
+                      items.add(const PopupMenuItem(value: 'approve', child: Text('✅ Approve')));
+                    }
+                    if (event.status == 'Approved') {
+                      items.add(const PopupMenuItem(value: 'publish', child: Text('📢 Publish')));
+                    }
+                    if (event.status == 'Published' || event.status == 'Ongoing') {
+                      items.add(const PopupMenuItem(value: 'registrations', child: Text('👥 Registrations & Check-in')));
+                      items.add(const PopupMenuItem(value: 'complete', child: Text('✓ Complete')));
+                    }
+                    items.add(const PopupMenuItem(value: 'edit', child: Text('✏️ Edit')));
+                    if (event.status != 'Completed') {
+                      items.add(const PopupMenuItem(value: 'cancel', child: Text('❌ Cancel')));
+                    }
+                    items.add(const PopupMenuItem(value: 'delete', child: Text('🗑️ Delete')));
+                    return items;
+                  },
+                ),
+              ),
+            ],
           ),
         );
       },

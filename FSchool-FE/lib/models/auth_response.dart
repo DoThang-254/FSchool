@@ -10,6 +10,10 @@ class AuthResponse {
   final int? studentId;
   final int? staffId;
 
+  // 2FA fields
+  final bool requiresTwoFactor;
+  final String? phoneNumber;
+
   AuthResponse({
     required this.id,
     this.rollNumber,
@@ -21,11 +25,13 @@ class AuthResponse {
     this.classId,
     this.studentId,
     this.staffId,
+    this.requiresTwoFactor = false,
+    this.phoneNumber,
   });
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) {
     return AuthResponse(
-      id: (json['id'] as num).toInt(),
+      id: (json['id'] as num?)?.toInt() ?? 0,
       rollNumber: json['rollNumber']?.toString(),
       employeeId: json['employeeId']?.toString(),
       department: json['department']?.toString(),
@@ -35,7 +41,8 @@ class AuthResponse {
       classId: (json['classId'] as num?)?.toInt(),
       studentId: (json['studentId'] as num?)?.toInt(),
       staffId: (json['staffId'] as num?)?.toInt(),
+      requiresTwoFactor: json['requiresTwoFactor'] == true,
+      phoneNumber: json['phoneNumber']?.toString(),
     );
   }
 }
-

@@ -1,3 +1,4 @@
+import 'package:bai1/services/api_client.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../config/api_config.dart';
@@ -8,7 +9,7 @@ class RegistrationService {
     required int subjectId,
     required int semesterId,
   }) async {
-    final response = await http.post(
+    final response = await ApiClient.post(
       Uri.parse('${ApiConfig.baseUrl}/CourseRegistration/student/register'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
@@ -30,7 +31,7 @@ class RegistrationService {
     required int studentId,
     required int classId,
   }) async {
-    final response = await http.post(
+    final response = await ApiClient.post(
       Uri.parse('${ApiConfig.baseUrl}/CourseRegistration/staff/assign-class'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
@@ -51,7 +52,7 @@ class RegistrationService {
     required int classId,
     required List<int> studentIds,
   }) async {
-    final response = await http.post(
+    final response = await ApiClient.post(
       Uri.parse('${ApiConfig.baseUrl}/CourseRegistration/staff/batch-assign-class'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
@@ -70,7 +71,7 @@ class RegistrationService {
     required int classId,
     required int studentId,
   }) async {
-    final response = await http.post(
+    final response = await ApiClient.post(
       Uri.parse('${ApiConfig.baseUrl}/CourseRegistration/staff/remove-class'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({

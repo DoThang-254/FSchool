@@ -2,6 +2,7 @@ import 'package:bai1/widgets/custom_bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:bai1/models/news.dart';
 import 'package:bai1/controllers/news_controller.dart';
+import 'package:bai1/services/session_manager.dart';
 
 final List<Map<String, dynamic>> menuItems = [
   {
@@ -40,24 +41,6 @@ final List<Map<String, dynamic>> menuItems = [
     'route': '/clubs',
     'roles': ['Student', 'Admin'],
   },
-  // {
-  //   'icon': Icons.computer,
-  //   'label': 'E-Learn',
-  //   'route': null,
-  //   'roles': ['Student'],
-  // },
-  // {
-  //   'icon': Icons.phone,
-  //   'label': 'Contact',
-  //   'route': null,
-  //   'roles': ['Student', 'Staff', 'Admin'],
-  // },
-  // {
-  //   'icon': Icons.bed,
-  //   'label': 'Dorm',
-  //   'route': null,
-  //   'roles': ['Student'],
-  // },
   {
     'icon': Icons.admin_panel_settings,
     'label': 'Admin Account',
@@ -106,10 +89,11 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context)?.settings.arguments as dynamic;
+    final dynamic args =
+        ModalRoute.of(context)?.settings.arguments ?? SessionManager().user;
 
     // Trích xuất thông tin (thêm fallback phòng trường hợp null)
-    final String fullName = args?.fullName ?? "Người dùng ẩn danh";
+    final String fullName = args?.fullName ?? "Anonymous User";
     final String role = (args?.role ?? "Student").toString().trim();
     final String rollNumber = args?.rollNumber ?? "N/A";
 

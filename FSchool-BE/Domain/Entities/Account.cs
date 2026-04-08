@@ -14,6 +14,7 @@ namespace Domain.Entities
         [Required]
         public string PasswordHash { get; set; }
 
+        public bool TwoFactorEnabled { get; set; } = false;
         // Navigation Properties (1-1)
         public ICollection<Role> Roles { get; set; }
         public Student Student { get; set; }

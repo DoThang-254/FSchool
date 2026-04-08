@@ -28,10 +28,29 @@ class _ManageScheduleScreenState extends State<ManageScheduleScreen> {
   List<model.Schedule> _schedules = [];
   bool _isLoading = false;
 
+  // Tuần hiện tại đang hiển thị
+  DateTime _focusedDate = DateTime.now();
+  late DateTime _weekStart;
+  late List<DateTime> _weekDays;
+
   @override
   void initState() {
     super.initState();
+    _setWeek(DateTime.now());
     _loadInitialData();
+  }
+
+  void _setWeek(DateTime date) {
+    _weekStart = date.subtract(Duration(days: date.weekday - 1));
+    _weekDays = List.generate(7, (i) => _weekStart.add(Duration(days: i)));
+    _focusedDate = date;
+  }
+
+  void _changeWeek(int delta) {
+    setState(() {
+      _setWeek(_weekStart.add(Duration(days: delta * 7)));
+    });
+    _loadSchedules();
   }
 
   Future<void> _loadInitialData() async {
@@ -52,9 +71,13 @@ class _ManageScheduleScreenState extends State<ManageScheduleScreen> {
     if (_selectedClass == null) return;
     setState(() => _isLoading = true);
     try {
-      final schedules = await _scheduleService.getSchedules(classId: _selectedClass!['id']);
+      final result = await _scheduleService.getSchedulesByDateRange(
+        classId: _selectedClass!['id'],
+        fromDate: _weekDays.first,
+        toDate: _weekDays.last,
+      );
       setState(() {
-        _schedules = schedules;
+        _schedules = result['schedules'] as List<model.Schedule>;
         _isLoading = false;
       });
     } catch (e) {
@@ -71,32 +94,95 @@ class _ManageScheduleScreenState extends State<ManageScheduleScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text("Quản lý Lịch học", style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.indigo,
+        title: const Text("Schedule Management", style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.orange,
         foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.today),
+            onPressed: () {
+              setState(() => _setWeek(DateTime.now()));
+              _loadSchedules();
+            },
+            tooltip: "This Week",
+          )
+        ],
       ),
       body: Column(
         children: [
           _buildClassSelector(),
-          const Divider(height: 1),
+          _buildWeekNavigator(),
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _selectedClass == null
-                    ? const Center(child: Text("Vui lòng chọn lớp để xem lịch"))
+                    ? _buildEmptyState("Please select a class to manage schedule")
                     : _buildScheduleList(),
           ),
         ],
       ),
       floatingActionButton: _selectedClass != null
-          ? FloatingActionButton.extended(
-              onPressed: _showBatchScheduleDialog,
-              icon: const Icon(Icons.auto_awesome),
-              label: const Text("Xếp lịch hàng loạt"),
-              backgroundColor: Colors.indigo,
+          ? Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                FloatingActionButton.small(
+                  heroTag: "add_single",
+                  onPressed: _showAddSingleScheduleDialog,
+                  child: const Icon(Icons.add),
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white,
+                ),
+                const SizedBox(height: 12),
+                FloatingActionButton.extended(
+                  heroTag: "add_batch",
+                  onPressed: _showBatchScheduleDialog,
+                  icon: const Icon(Icons.auto_awesome),
+                  label: const Text("Batch Schedule"),
+                  backgroundColor: Colors.orange,
+                ),
+              ],
             )
           : null,
+    );
+  }
+
+  Widget _buildEmptyState(String message) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.calendar_today_outlined, size: 64, color: Colors.grey[400]),
+          const SizedBox(height: 16),
+          Text(message, style: TextStyle(color: Colors.grey[600], fontSize: 16)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWeekNavigator() {
+    final df = DateFormat('dd/MM');
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      color: Colors.white,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.chevron_left),
+            onPressed: () => _changeWeek(-1),
+          ),
+          Text(
+            "${df.format(_weekDays.first)} - ${df.format(_weekDays.last)}",
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          IconButton(
+            icon: const Icon(Icons.chevron_right),
+            onPressed: () => _changeWeek(1),
+          ),
+        ],
+      ),
     );
   }
 
@@ -107,7 +193,7 @@ class _ManageScheduleScreenState extends State<ManageScheduleScreen> {
       child: DropdownButtonFormField<Map<String, dynamic>>(
         value: _selectedClass,
         decoration: InputDecoration(
-          labelText: "Chọn lớp học",
+          labelText: "Select Class",
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           prefixIcon: const Icon(Icons.class_outlined),
         ),
@@ -127,65 +213,51 @@ class _ManageScheduleScreenState extends State<ManageScheduleScreen> {
 
   Widget _buildScheduleList() {
     if (_schedules.isEmpty) {
-      return const Center(child: Text("Lớp chưa có lịch học nào."));
+      return _buildEmptyState("No classes scheduled for this week");
     }
+
+    // Group schedules by day
+    Map<String, List<model.Schedule>> grouped = {};
+    for (var s in _schedules) {
+      final dateStr = DateFormat('yyyy-MM-dd').format(DateTime.parse(s.date));
+      grouped.putIfAbsent(dateStr, () => []).add(s);
+    }
+
+    // Sort dates
+    var sortedDates = grouped.keys.toList()..sort();
+
     return ListView.builder(
-      padding: const EdgeInsets.all(8),
-      itemCount: _schedules.length,
+      padding: const EdgeInsets.all(12),
+      itemCount: sortedDates.length,
       itemBuilder: (context, index) {
-        final s = _schedules[index];
-        return Card(
-          elevation: 2,
-          margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            leading: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  DateFormat('dd/MM').format(DateTime.parse(s.date)),
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                Text(
-                  DateFormat('EEE').format(DateTime.parse(s.date)),
-                  style: const TextStyle(color: Colors.grey, fontSize: 12),
-                ),
-              ],
+        final dateStr = sortedDates[index];
+        final daySchedules = grouped[dateStr]!;
+        final date = DateTime.parse(dateStr);
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      "${_getDayName(date.weekday)}, ${DateFormat('dd/MM/yyyy').format(date)}",
+                      style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.orange),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            title: Text(s.subject, style: const TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    const Icon(Icons.access_time, size: 14, color: Colors.blue),
-                    const SizedBox(width: 4),
-                    Text(s.time),
-                  ],
-                ),
-                Row(
-                  children: [
-                    const Icon(Icons.room_outlined, size: 14, color: Colors.green),
-                    const SizedBox(width: 4),
-                    Text(s.room),
-                  ],
-                ),
-                Row(
-                  children: [
-                    const Icon(Icons.person_outline, size: 14, color: Colors.orange),
-                    const SizedBox(width: 4),
-                    Text(s.teacher),
-                  ],
-                ),
-              ],
-            ),
-    trailing: IconButton(
-              icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
-              onPressed: () => _confirmDeleteSchedule(s),
-            ),
-          ),
+            ...daySchedules.map((s) => _buildScheduleCard(s)).toList(),
+            const SizedBox(height: 12),
+          ],
         );
       },
     );
@@ -195,14 +267,14 @@ class _ManageScheduleScreenState extends State<ManageScheduleScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Xác nhận xóa"),
-        content: Text("Xóa buổi học môn ${s.subject} ngày ${DateFormat('dd/MM').format(DateTime.parse(s.date))}?"),
+        title: const Text("Confirm Delete"),
+        content: Text("Delete session for ${s.subject} on ${DateFormat('dd/MM').format(DateTime.parse(s.date))}?"),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("Hủy")),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("Cancel")),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text("Xóa"),
+            child: const Text("Delete"),
           ),
         ],
       ),
@@ -214,12 +286,168 @@ class _ManageScheduleScreenState extends State<ManageScheduleScreen> {
         await _scheduleService.deleteSchedule(s.id!);
         _loadSchedules();
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Đã xóa buổi học")));
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Session deleted")));
         }
       } catch (e) {
         _showError(e.toString());
         setState(() => _isLoading = false);
       }
+    }
+  }
+
+  String _getDayName(int weekday) {
+    const names = ["", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    return names[weekday % 8 == 0 ? 7 : weekday];
+  }
+
+  Widget _buildScheduleCard(model.Schedule s) {
+    return Card(
+      elevation: 0,
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey.withOpacity(0.2)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: IntrinsicHeight(
+          child: Row(
+            children: [
+              SizedBox(
+                width: 70,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      s.time.split(' - ').first,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                    ),
+                    const Icon(Icons.arrow_drop_down, size: 14, color: Colors.grey),
+                    Text(
+                      s.time.split(' - ').last,
+                      style: const TextStyle(color: Colors.grey, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+              const VerticalDivider(width: 24, thickness: 1),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          s.subject,
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.orange),
+                        ),
+                        _buildStatusBadge(s.status),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(Icons.room_outlined, size: 16, color: Colors.grey),
+                        const SizedBox(width: 4),
+                        Text(s.room, style: const TextStyle(fontSize: 13)),
+                        const SizedBox(width: 12),
+                        const Icon(Icons.person_outline, size: 16, color: Colors.grey),
+                        const SizedBox(width: 4),
+                        Text(s.teacher, style: const TextStyle(fontSize: 13)),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.edit_outlined, color: Colors.orange, size: 20),
+                onPressed: () => _showEditScheduleDialog(s),
+                tooltip: "Edit",
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
+                onPressed: () => _confirmDeleteSchedule(s),
+                tooltip: "Delete",
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusBadge(String status) {
+    Color color = Colors.grey;
+    if (status == 'Happening') color = Colors.green;
+    else if (status == 'Upcoming') color = Colors.orange;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        status,
+        style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  void _showAddSingleScheduleDialog() async {
+    final subjects = await _subjectService.getSubjects();
+    final rooms = await _roomService.getRooms();
+    final staffs = await _staffService.getStaffs();
+    final slots = await _slotService.getSlots();
+
+    if (!mounted) return;
+
+    showDialog(
+      context: context,
+      builder: (context) => _AddSingleScheduleDialog(
+        subjects: subjects,
+        rooms: rooms,
+        staffs: staffs,
+        slots: slots,
+        classId: _selectedClass!['id'],
+        initialDate: _focusedDate,
+        onSuccess: () {
+          _loadSchedules();
+        },
+      ),
+    );
+  }
+
+  void _showEditScheduleDialog(model.Schedule schedule) async {
+    setState(() => _isLoading = true);
+    try {
+      final subjects = await _subjectService.getSubjects();
+      final rooms = await _roomService.getRooms();
+      final staffs = await _staffService.getStaffs();
+      final slots = await _slotService.getSlots();
+
+      setState(() => _isLoading = false);
+      if (!mounted) return;
+
+      showDialog(
+        context: context,
+        builder: (context) => _AddSingleScheduleDialog(
+          subjects: subjects,
+          rooms: rooms,
+          staffs: staffs,
+          slots: slots,
+          classId: _selectedClass!['id'],
+          initialDate: DateTime.parse(schedule.date),
+          editSchedule: schedule,
+          onSuccess: () {
+            _loadSchedules();
+          },
+        ),
+      );
+    } catch (e) {
+      setState(() => _isLoading = false);
+      _showError(e.toString());
     }
   }
 
@@ -247,6 +475,162 @@ class _ManageScheduleScreenState extends State<ManageScheduleScreen> {
         },
       ),
     );
+  }
+}
+
+class _AddSingleScheduleDialog extends StatefulWidget {
+  final List<Map<String, dynamic>> subjects;
+  final List<Map<String, dynamic>> rooms;
+  final List<Map<String, dynamic>> staffs;
+  final List<Map<String, dynamic>> slots;
+  final int classId;
+  final DateTime initialDate;
+  final VoidCallback onSuccess;
+  final model.Schedule? editSchedule;
+
+  const _AddSingleScheduleDialog({
+    required this.subjects,
+    required this.rooms,
+    required this.staffs,
+    required this.slots,
+    required this.classId,
+    required this.initialDate,
+    required this.onSuccess,
+    this.editSchedule,
+  });
+
+  bool get isEditing => editSchedule != null;
+
+  @override
+  State<_AddSingleScheduleDialog> createState() => _AddSingleScheduleDialogState();
+}
+
+class _AddSingleScheduleDialogState extends State<_AddSingleScheduleDialog> {
+  int? _selectedSubject;
+  int? _selectedRoom;
+  int? _selectedStaff;
+  int? _selectedSlot;
+  late DateTime _selectedDate;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDate = widget.initialDate;
+
+    if (widget.isEditing) {
+      final s = widget.editSchedule!;
+      // Look up IDs from names
+      _selectedSubject = _findId(widget.subjects, 'subjectName', s.subject);
+      _selectedRoom = _findId(widget.rooms, 'roomName', s.room);
+      _selectedStaff = _findId(widget.staffs, 'fullName', s.teacher);
+      _selectedSlot = s.slotId;
+    }
+  }
+
+  int? _findId(List<Map<String, dynamic>> list, String nameKey, String nameValue) {
+    try {
+      return list.firstWhere((item) => item[nameKey] == nameValue)['id'] as int;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(
+        widget.isEditing ? "Edit Session" : "Add Single Session",
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text("Date"),
+              subtitle: Text(DateFormat('dd/MM/yyyy').format(_selectedDate)),
+              trailing: const Icon(Icons.calendar_today, size: 20),
+              onTap: () async {
+                final res = await showDatePicker(
+                  context: context,
+                  initialDate: _selectedDate,
+                  firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                  lastDate: DateTime.now().add(const Duration(days: 365)),
+                );
+                if (res != null) setState(() => _selectedDate = res);
+              },
+            ),
+            _buildDropdown("Môn học", widget.subjects, "id", "subjectName", _selectedSubject, (val) => _selectedSubject = val),
+            const SizedBox(height: 8),
+            _buildDropdown("Phòng học", widget.rooms, "id", "roomName", _selectedRoom, (val) => _selectedRoom = val),
+            const SizedBox(height: 8),
+            _buildDropdown("Giáo viên", widget.staffs, "id", "fullName", _selectedStaff, (val) => _selectedStaff = val),
+            const SizedBox(height: 8),
+            _buildDropdown("Tiết học", widget.slots, "id", "slotName", _selectedSlot, (val) => _selectedSlot = val),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text("Hủy")),
+        ElevatedButton(
+          onPressed: _isLoading ? null : _handleSubmit,
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo, foregroundColor: Colors.white),
+          child: _isLoading
+              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+              : Text(widget.isEditing ? "Update" : "Add"),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDropdown(String label, List<Map<String, dynamic>> items, String valueKey, String textKey, int? initialValue, Function(int?) onChanged) {
+    return DropdownButtonFormField<int>(
+      decoration: InputDecoration(labelText: label, isDense: true),
+      value: initialValue,
+      items: items.map((i) => DropdownMenuItem(value: i[valueKey] as int, child: Text(i[textKey]))).toList(),
+      onChanged: (val) => setState(() => onChanged(val)),
+    );
+  }
+
+  Future<void> _handleSubmit() async {
+    if (_selectedSubject == null || _selectedRoom == null || _selectedStaff == null || _selectedSlot == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please fill in all information")));
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    try {
+      final data = {
+        "classId": widget.classId,
+        "subjectId": _selectedSubject,
+        "roomId": _selectedRoom,
+        "staffId": _selectedStaff,
+        "slotId": _selectedSlot,
+        "date": _selectedDate.toIso8601String(),
+      };
+
+      if (widget.isEditing) {
+        await ScheduleService().updateSchedule(widget.editSchedule!.id!, data);
+      } else {
+        await ScheduleService().createSchedule(data);
+      }
+
+      Navigator.pop(context);
+      widget.onSuccess();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(widget.isEditing ? "Session updated successfully" : "Session added successfully", style: const TextStyle(color: Colors.white)),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      String msg = e.toString().replaceAll("Exception: ", "");
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg), backgroundColor: Colors.red));
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 }
 
@@ -282,13 +666,13 @@ class _BatchScheduleWizardState extends State<_BatchScheduleWizard> {
   bool _isLoading = false;
 
   final Map<int, String> _dayNames = {
-    1: "Thứ 2",
-    2: "Thứ 3",
-    3: "Thứ 4",
-    4: "Thứ 5",
-    5: "Thứ 6",
-    6: "Thứ 7",
-    0: "Chủ Nhật",
+    1: "Mon",
+    2: "Tue",
+    3: "Wed",
+    4: "Thu",
+    5: "Fri",
+    6: "Sat",
+    0: "Sun",
   };
 
   @override
@@ -306,7 +690,7 @@ class _BatchScheduleWizardState extends State<_BatchScheduleWizard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text("Xếp lịch hàng loạt", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+              const Text("Batch Schedule Creation", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
               IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close)),
             ],
           ),
@@ -316,13 +700,13 @@ class _BatchScheduleWizardState extends State<_BatchScheduleWizard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildDropdown("Môn học", widget.subjects, "id", "subjectName", (val) => _selectedSubject = val),
+                  _buildScoreSmall("Subject", widget.subjects, "id", "subjectName", (val) => _selectedSubject = val),
                   const SizedBox(height: 12),
-                  _buildDropdown("Phòng học", widget.rooms, "id", "roomName", (val) => _selectedRoom = val),
+                  _buildScoreSmall("Room", widget.rooms, "id", "roomName", (val) => _selectedRoom = val),
                   const SizedBox(height: 12),
-                  _buildDropdown("Giáo viên", widget.staffs, "id", "fullName", (val) => _selectedStaff = val),
+                  _buildScoreSmall("Teacher", widget.staffs, "id", "fullName", (val) => _selectedStaff = val),
                   const SizedBox(height: 20),
-                  const Text("Chọn các thứ trong tuần", style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text("Select Days of Week", style: TextStyle(fontWeight: FontWeight.bold)),
                   Wrap(
                     spacing: 8,
                     children: _dayNames.entries.map((e) {
@@ -340,7 +724,7 @@ class _BatchScheduleWizardState extends State<_BatchScheduleWizard> {
                     }).toList(),
                   ),
                   const SizedBox(height: 20),
-                  const Text("Chọn Tiết học (Slot)", style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text("Select Slots", style: TextStyle(fontWeight: FontWeight.bold)),
                   Wrap(
                     spacing: 8,
                     children: widget.slots.map((s) {
@@ -364,7 +748,7 @@ class _BatchScheduleWizardState extends State<_BatchScheduleWizard> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text("Ngày bắt đầu", style: TextStyle(fontWeight: FontWeight.bold)),
+                            const Text("Start Date", style: TextStyle(fontWeight: FontWeight.bold)),
                             TextButton.icon(
                               onPressed: () async {
                                 final res = await showDatePicker(
@@ -387,7 +771,7 @@ class _BatchScheduleWizardState extends State<_BatchScheduleWizard> {
                           controller: _sessionsController,
                           keyboardType: TextInputType.number,
                           decoration: const InputDecoration(
-                            labelText: "Tổng số buổi",
+                            labelText: "Total Sessions",
                             border: OutlineInputBorder(),
                           ),
                         ),
@@ -405,12 +789,12 @@ class _BatchScheduleWizardState extends State<_BatchScheduleWizard> {
             child: ElevatedButton(
               onPressed: _isLoading ? null : _handleBatchSchedule,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.indigo,
+                backgroundColor: Colors.orange,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               child: _isLoading 
                 ? const CircularProgressIndicator(color: Colors.white)
-                : const Text("Tạo lịch ngay", style: TextStyle(color: Colors.white, fontSize: 16)),
+                : const Text("Create Schedule Now", style: TextStyle(color: Colors.white, fontSize: 16)),
             ),
           ),
         ],
@@ -418,7 +802,7 @@ class _BatchScheduleWizardState extends State<_BatchScheduleWizard> {
     );
   }
 
-  Widget _buildDropdown(String label, List<Map<String, dynamic>> items, String valueKey, String textKey, Function(int?) onChanged) {
+  Widget _buildScoreSmall(String label, List<Map<String, dynamic>> items, String valueKey, String textKey, Function(int?) onChanged) {
     return DropdownButtonFormField<int>(
       decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()),
       items: items.map((i) => DropdownMenuItem(value: i[valueKey] as int, child: Text(i[textKey]))).toList(),
@@ -428,13 +812,13 @@ class _BatchScheduleWizardState extends State<_BatchScheduleWizard> {
 
   Future<void> _handleBatchSchedule() async {
     if (_selectedSubject == null || _selectedRoom == null || _selectedStaff == null || _selectedSlots.isEmpty || _selectedDays.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Vui lòng nhập đầy đủ thông tin")));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please fill in all information")));
       return;
     }
 
     setState(() => _isLoading = true);
     try {
-      await ScheduleService().batchSchedule({
+      final message = await ScheduleService().batchSchedule({
         "classId": widget.classId,
         "subjectId": _selectedSubject,
         "roomId": _selectedRoom,
@@ -446,9 +830,27 @@ class _BatchScheduleWizardState extends State<_BatchScheduleWizard> {
         "skipHolidays": true,
         "skipSundays": !_selectedDays.contains(0),
       });
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
       widget.onSuccess();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      String errorMessage = e.toString().replaceAll("Exception: ", "");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     } finally {
       setState(() => _isLoading = false);
     }

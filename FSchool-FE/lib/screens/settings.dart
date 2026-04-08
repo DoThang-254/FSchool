@@ -1,15 +1,101 @@
 import 'package:flutter/material.dart';
 import 'package:bai1/widgets/custom_bottom_nav_bar.dart';
 import 'package:bai1/controllers/auth_controller.dart';
+import 'package:bai1/config/api_config.dart';
+import 'package:bai1/services/session_manager.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final AuthController _authController = AuthController();
-    final args = ModalRoute.of(context)?.settings.arguments as dynamic;
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
 
+class _SettingsScreenState extends State<SettingsScreen> {
+  final AuthController _authController = AuthController();
+  bool _is2faEnabled = false;
+  bool _is2faLoading = true;
+
+  dynamic _args;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _args = ModalRoute.of(context)?.settings.arguments ?? SessionManager().user;
+
+    // Lấy trạng thái 2FA hiện tại
+    try {
+      final accountId = _args?.id;
+      if (accountId != null) {
+        _fetch2faStatus(accountId);
+      } else {
+        setState(() => _is2faLoading = false);
+      }
+    } catch (e) {
+      setState(() => _is2faLoading = false);
+    }
+  }
+
+  Future<void> _fetch2faStatus(int accountId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/Auth/2fa-status?accountId=$accountId'),
+      );
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (mounted) {
+          setState(() {
+            _is2faEnabled = data['twoFactorEnabled'] == true;
+            _is2faLoading = false;
+          });
+        }
+      } else {
+        if (mounted) setState(() => _is2faLoading = false);
+      }
+    } catch (e) {
+      if (mounted) setState(() => _is2faLoading = false);
+    }
+  }
+
+  Future<void> _toggle2fa() async {
+    final accountId = _args?.id;
+    if (accountId == null) return;
+
+    setState(() => _is2faLoading = true);
+
+    try {
+      final response = await http.put(
+        Uri.parse('${ApiConfig.baseUrl}/Auth/toggle-2fa?accountId=$accountId'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          _is2faEnabled = data['twoFactorEnabled'] == true;
+        });
+
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(data['message']),
+            backgroundColor: _is2faEnabled ? Colors.green : Colors.orange,
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    } finally {
+      setState(() => _is2faLoading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings', style: TextStyle(color: Colors.white)),
@@ -41,33 +127,33 @@ class SettingsScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          args?.fullName ?? 'User Name',
+                          _args?.fullName ?? 'User Name',
                           style: const TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
-                          'Role: ${args?.role ?? 'N/A'}',
+                          'Role: ${_args?.role ?? 'N/A'}',
                           style: TextStyle(
                             color: Colors.orange[800],
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        if (args?.role == 'Student')
+                        if (_args?.role == 'Student')
                           Text(
-                            'Roll Number: ${args?.rollNumber ?? 'N/A'}',
+                            'Roll Number: ${_args?.rollNumber ?? 'N/A'}',
                             style: TextStyle(color: Colors.grey[600]),
                           ),
-                        if (args?.role == 'Staff' || args?.role == 'Admin') ...[
-                          if (args?.employeeId != null)
+                        if (_args?.role == 'Staff' || _args?.role == 'Admin') ...[
+                          if (_args?.employeeId != null)
                             Text(
-                              'Employee ID: ${args?.employeeId}',
+                              'Employee ID: ${_args?.employeeId}',
                               style: TextStyle(color: Colors.grey[600]),
                             ),
-                          if (args?.department != null)
+                          if (_args?.department != null)
                             Text(
-                              'Department: ${args?.department}',
+                              'Department: ${_args?.department}',
                               style: TextStyle(color: Colors.grey[600]),
                             ),
                         ],
@@ -79,6 +165,47 @@ class SettingsScreen extends StatelessWidget {
             ),
             const Divider(),
             const SizedBox(height: 10),
+
+            // === 2FA Toggle ===
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              decoration: BoxDecoration(
+                color: _is2faEnabled ? Colors.green.shade50 : Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: _is2faEnabled ? Colors.green.shade200 : Colors.grey.shade200,
+                ),
+              ),
+              child: ListTile(
+                leading: Icon(
+                  Icons.security,
+                  color: _is2faEnabled ? Colors.green : Colors.grey,
+                ),
+                title: const Text(
+                  'Two-Factor Authentication',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(
+                  _is2faEnabled
+                      ? 'OTP will be sent via email for each login'
+                      : 'Enable to increase account security',
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                ),
+                trailing: _is2faLoading
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Switch(
+                        value: _is2faEnabled,
+                        activeColor: Colors.green,
+                        onChanged: (value) => _toggle2fa(),
+                      ),
+              ),
+            ),
+
+            const SizedBox(height: 4),
 
             _buildSettingsItem(
               icon: Icons.lock_outline,
@@ -134,7 +261,7 @@ class SettingsScreen extends StatelessWidget {
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.redAccent,
+                    backgroundColor: Colors.orange,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -148,7 +275,7 @@ class SettingsScreen extends StatelessWidget {
       ),
       bottomNavigationBar: CustomBottomNavigationBar(
         currentIndex: 1,
-        args: args,
+        args: _args,
       ),
     );
   }

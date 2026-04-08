@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Application.DTOs.Grade;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +8,7 @@ namespace FSchool.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class GradesController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

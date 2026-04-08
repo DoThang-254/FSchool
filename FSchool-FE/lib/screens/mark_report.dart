@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:bai1/controllers/grade_controller.dart';
 import 'package:bai1/models/grade.dart';
+import 'package:bai1/services/session_manager.dart';
 
 class MarkReportScreen extends StatefulWidget {
   const MarkReportScreen({super.key});
@@ -42,6 +43,13 @@ class _MarkReportScreenState extends State<MarkReportScreen> {
     if (args is int && _studentId == null) {
       _studentId = args;
       _fetchGrades();
+    } else if (args == null && _studentId == null) {
+      // Fallback for web reload
+      final user = SessionManager().user;
+      if (user != null && user.studentId != null) {
+        _studentId = user.studentId;
+        _fetchGrades();
+      }
     }
   }
 
@@ -67,7 +75,7 @@ class _MarkReportScreenState extends State<MarkReportScreen> {
     });
   }
 
-  // --- HÀM TÍNH ĐIỂM TRUNG BÌNH ---
+  // --- AVERAGE SCORE CALCULATION ---
   double get _averageScore {
     if (_grades.isEmpty) return 0.0;
     double sum = 0;
@@ -77,7 +85,7 @@ class _MarkReportScreenState extends State<MarkReportScreen> {
     return sum / _grades.length;
   }
 
-  // --- HÀM XẾP LOẠI ---
+  // --- RANKING CALCULATION ---
   String get _academicRank {
     double avg = _averageScore;
     if (avg >= 9.0) return 'Excellent';
@@ -381,7 +389,7 @@ class _MarkReportScreenState extends State<MarkReportScreen> {
     );
   }
 
-  // Helper Widget cho Dropdown
+  // Helper Widget for Dropdown
   Widget _buildDropdown({
     required String value,
     required List<String> items,

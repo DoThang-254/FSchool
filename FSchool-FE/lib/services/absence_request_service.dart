@@ -1,3 +1,4 @@
+import 'package:bai1/services/api_client.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:bai1/config/api_config.dart';
@@ -14,7 +15,7 @@ class AbsenceRequestService {
       url += '?${params.join('&')}';
     }
 
-    final response = await http.get(Uri.parse(url));
+    final response = await ApiClient.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
       Iterable list = json.decode(response.body);
@@ -30,7 +31,7 @@ class AbsenceRequestService {
     required int accountId,
     required List<int> slotIds,
   }) async {
-    final response = await http.post(
+    final response = await ApiClient.post(
       Uri.parse(ApiConfig.absenceRequests),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({
@@ -55,7 +56,7 @@ class AbsenceRequestService {
     required String reason,
     required List<int> slotIds,
   }) async {
-    final response = await http.put(
+    final response = await ApiClient.put(
       Uri.parse('${ApiConfig.absenceRequests}/$id'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({
@@ -72,7 +73,7 @@ class AbsenceRequestService {
   }
 
   Future<void> deleteAbsenceRequest(int id) async {
-    final response = await http.delete(
+    final response = await ApiClient.delete(
       Uri.parse('${ApiConfig.absenceRequests}/$id'),
     );
 

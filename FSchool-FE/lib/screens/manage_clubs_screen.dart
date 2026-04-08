@@ -1,7 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:bai1/models/club.dart';
 import 'package:bai1/models/student_club_member.dart';
 import 'package:bai1/services/club_service.dart';
+import 'package:bai1/services/upload_service.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class ManageClubsScreen extends StatefulWidget {
   const ManageClubsScreen({super.key});
@@ -10,8 +13,10 @@ class ManageClubsScreen extends StatefulWidget {
   State<ManageClubsScreen> createState() => _ManageClubsScreenState();
 }
 
-class _ManageClubsScreenState extends State<ManageClubsScreen> with SingleTickerProviderStateMixin {
+class _ManageClubsScreenState extends State<ManageClubsScreen>
+    with SingleTickerProviderStateMixin {
   final ClubService _clubService = ClubService();
+  final UploadService _uploadService = UploadService();
   List<Club> _activeClubs = [];
   List<Club> _pendingClubs = [];
   bool _isLoading = true;
@@ -36,11 +41,15 @@ class _ManageClubsScreenState extends State<ManageClubsScreen> with SingleTicker
       final all = await _clubService.getAllClubs();
       setState(() {
         _activeClubs = all.where((c) => c.status == 'Active').toList();
-        _pendingClubs = all.where((c) => c.status == 'PendingApproval').toList();
+        _pendingClubs = all
+            .where((c) => c.status == 'PendingApproval')
+            .toList();
       });
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Error: $e")));
       }
     } finally {
       setState(() => _isLoading = false);
@@ -51,6 +60,7 @@ class _ManageClubsScreenState extends State<ManageClubsScreen> with SingleTicker
     final nameController = TextEditingController(text: club?.name);
     final categoryController = TextEditingController(text: club?.category);
     final descController = TextEditingController(text: club?.description);
+    final imageController = TextEditingController(text: club?.image);
 
     showDialog(
       context: context,
@@ -60,27 +70,110 @@ class _ManageClubsScreenState extends State<ManageClubsScreen> with SingleTicker
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(controller: nameController, decoration: const InputDecoration(labelText: "Name")),
-              TextField(controller: categoryController, decoration: const InputDecoration(labelText: "Category")),
-              TextField(controller: descController, decoration: const InputDecoration(labelText: "Description"), maxLines: 3),
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(labelText: "Name"),
+              ),
+              TextField(
+                controller: categoryController,
+                decoration: const InputDecoration(labelText: "Category"),
+              ),
+              TextField(
+                controller: descController,
+                decoration: const InputDecoration(labelText: "Description"),
+                maxLines: 3,
+              ),
+              const SizedBox(height: 10),
+              StatefulBuilder(
+                builder: (context, setPicState) => Column(
+                  children: [
+                    if (imageController.text.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Stack(
+                          children: [
+                            Image.network(
+                              imageController.text,
+                              height: 100,
+                              width: double.infinity,
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Container(
+                                    height: 100,
+                                    color: Colors.grey[200],
+                                    child: const Icon(
+                                      Icons.broken_image,
+                                      size: 40,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                            ),
+                            Positioned(
+                              right: 0,
+                              child: IconButton(
+                                icon: const Icon(
+                                  Icons.cancel,
+                                  color: Colors.red,
+                                ),
+                                onPressed: () =>
+                                    setPicState(() => imageController.clear()),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    OutlinedButton.icon(
+                      icon: const Icon(Icons.image),
+                      label: Text(
+                        imageController.text.isEmpty
+                            ? "Upload Logo"
+                            : "Change Logo",
+                      ),
+                      onPressed: () async {
+                        final picker = ImagePicker();
+                        final XFile? pickedFile = await picker.pickImage(
+                          source: ImageSource.gallery,
+                        );
+                        if (pickedFile != null) {
+                          final uploadedUrl = await _uploadService.uploadImage(
+                            pickedFile,
+                          );
+                          if (uploadedUrl != null) {
+                            setPicState(
+                              () => imageController.text = uploadedUrl,
+                            );
+                          }
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
           ElevatedButton(
             onPressed: () async {
               final data = {
                 "name": nameController.text,
                 "category": categoryController.text,
                 "description": descController.text,
+                "imageUrl": imageController.text,
               };
 
               bool success;
               if (club == null) {
                 success = await _clubService.createClub(data);
               } else {
-                success = await _clubService.updateClub(int.parse(club.id), data);
+                success = await _clubService.updateClub(
+                  int.parse(club.id),
+                  data,
+                );
               }
 
               if (success) {
@@ -100,7 +193,9 @@ class _ManageClubsScreenState extends State<ManageClubsScreen> with SingleTicker
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(success ? '${club.name} đã được duyệt!' : 'Lỗi khi duyệt CLB'),
+          content: Text(
+            success ? '${club.name} has been approved!' : 'Error approving club',
+          ),
           backgroundColor: success ? Colors.green : Colors.red,
         ),
       );
@@ -146,28 +241,58 @@ class _ManageClubsScreenState extends State<ManageClubsScreen> with SingleTicker
                       children: [
                         // Active members
                         ListView.builder(
-                          itemCount: members.where((m) => m.status == 'Active').length,
+                          itemCount: members
+                              .where((m) => m.status == 'Active')
+                              .length,
                           itemBuilder: (context, index) {
-                            final member = members.where((m) => m.status == 'Active').toList()[index];
+                            final member = members
+                                .where((m) => m.status == 'Active')
+                                .toList()[index];
                             return ListTile(
                               title: Text(member.fullName),
-                              subtitle: Text('${member.rollNumber} - ${member.clubRole}'),
+                              subtitle: Text(
+                                '${member.rollNumber} - ${member.clubRole}',
+                              ),
                               trailing: PopupMenuButton<String>(
                                 onSelected: (role) async {
-                                  await _clubService.assignRole(clubId, member.studentId, role);
+                                  await _clubService.assignRole(
+                                    clubId,
+                                    member.studentId,
+                                    role,
+                                  );
                                   // Refresh
-                                  members = await _clubService.getMembers(clubId);
+                                  members = await _clubService.getMembers(
+                                    clubId,
+                                  );
                                   setDialogState(() {});
                                 },
                                 itemBuilder: (context) => [
-                                  const PopupMenuItem(value: 'President', child: Text('President')),
-                                  const PopupMenuItem(value: 'VicePresident', child: Text('Vice President')),
-                                  const PopupMenuItem(value: 'Secretary', child: Text('Secretary')),
-                                  const PopupMenuItem(value: 'Treasurer', child: Text('Treasurer')),
-                                  const PopupMenuItem(value: 'Member', child: Text('Member')),
+                                  const PopupMenuItem(
+                                    value: 'President',
+                                    child: Text('President'),
+                                  ),
+                                  const PopupMenuItem(
+                                    value: 'VicePresident',
+                                    child: Text('Vice President'),
+                                  ),
+                                  const PopupMenuItem(
+                                    value: 'Secretary',
+                                    child: Text('Secretary'),
+                                  ),
+                                  const PopupMenuItem(
+                                    value: 'Treasurer',
+                                    child: Text('Treasurer'),
+                                  ),
+                                  const PopupMenuItem(
+                                    value: 'Member',
+                                    child: Text('Member'),
+                                  ),
                                 ],
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: Colors.orange.shade100,
                                     borderRadius: BorderRadius.circular(8),
@@ -175,8 +300,14 @@ class _ManageClubsScreenState extends State<ManageClubsScreen> with SingleTicker
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Text(member.clubRole, style: const TextStyle(fontSize: 12)),
-                                      const Icon(Icons.arrow_drop_down, size: 16),
+                                      Text(
+                                        member.clubRole,
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
+                                      const Icon(
+                                        Icons.arrow_drop_down,
+                                        size: 16,
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -196,20 +327,36 @@ class _ManageClubsScreenState extends State<ManageClubsScreen> with SingleTicker
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   IconButton(
-                                    icon: const Icon(Icons.check_circle, color: Colors.green),
+                                    icon: const Icon(
+                                      Icons.check_circle,
+                                      color: Colors.green,
+                                    ),
                                     onPressed: () async {
-                                      await _clubService.approveMember(clubId, member.studentId);
-                                      members = await _clubService.getMembers(clubId);
-                                      pendingMembers = await _clubService.getPendingMembers(clubId);
+                                      await _clubService.approveMember(
+                                        clubId,
+                                        member.studentId,
+                                      );
+                                      members = await _clubService.getMembers(
+                                        clubId,
+                                      );
+                                      pendingMembers = await _clubService
+                                          .getPendingMembers(clubId);
                                       setDialogState(() {});
                                       _fetchData();
                                     },
                                   ),
                                   IconButton(
-                                    icon: const Icon(Icons.cancel, color: Colors.red),
+                                    icon: const Icon(
+                                      Icons.cancel,
+                                      color: Colors.red,
+                                    ),
                                     onPressed: () async {
-                                      await _clubService.rejectMember(clubId, member.studentId);
-                                      pendingMembers = await _clubService.getPendingMembers(clubId);
+                                      await _clubService.rejectMember(
+                                        clubId,
+                                        member.studentId,
+                                      );
+                                      pendingMembers = await _clubService
+                                          .getPendingMembers(clubId);
                                       setDialogState(() {});
                                     },
                                   ),
@@ -226,7 +373,10 @@ class _ManageClubsScreenState extends State<ManageClubsScreen> with SingleTicker
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text("Close")),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Close"),
+            ),
           ],
         ),
       ),
@@ -237,7 +387,10 @@ class _ManageClubsScreenState extends State<ManageClubsScreen> with SingleTicker
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Manage Clubs", style: TextStyle(color: Colors.white)),
+        title: const Text(
+          "Manage Clubs",
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.orange,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
@@ -265,18 +418,43 @@ class _ManageClubsScreenState extends State<ManageClubsScreen> with SingleTicker
                   itemBuilder: (context, index) {
                     final club = _activeClubs[index];
                     return ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: Colors.orange.shade100,
-                        child: Text(club.name.isNotEmpty ? club.name[0] : '?',
-                            style: const TextStyle(color: Colors.orange)),
+                      leading: Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Colors.orange.shade100,
+                          borderRadius: BorderRadius.circular(8),
+                          image: club.image != null && club.image!.isNotEmpty
+                              ? DecorationImage(
+                                  image: NetworkImage(club.image!),
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
+                        ),
+                        child: club.image == null || club.image!.isEmpty
+                            ? Center(
+                                child: Text(
+                                  club.name.isNotEmpty ? club.name[0] : '?',
+                                  style: const TextStyle(
+                                    color: Colors.orange,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              )
+                            : null,
                       ),
                       title: Text(club.name),
-                      subtitle: Text("${club.category} - ${club.members} members"),
+                      subtitle: Text(
+                        "${club.category} - ${club.members} members",
+                      ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.people, color: Colors.orange),
+                            icon: const Icon(
+                              Icons.people,
+                              color: Colors.orange,
+                            ),
                             tooltip: "Manage Members",
                             onPressed: () => _showMembersDialog(club),
                           ),
@@ -293,13 +471,23 @@ class _ManageClubsScreenState extends State<ManageClubsScreen> with SingleTicker
                                   title: const Text("Delete Club"),
                                   content: const Text("Are you sure?"),
                                   actions: [
-                                    TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("No")),
-                                    TextButton(onPressed: () => Navigator.pop(context, true), child: const Text("Yes")),
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, false),
+                                      child: const Text("No"),
+                                    ),
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, true),
+                                      child: const Text("Yes"),
+                                    ),
                                   ],
                                 ),
                               );
                               if (confirm == true) {
-                                await _clubService.deleteClub(int.parse(club.id));
+                                await _clubService.deleteClub(
+                                  int.parse(club.id),
+                                );
                                 _fetchData();
                               }
                             },
@@ -317,7 +505,10 @@ class _ManageClubsScreenState extends State<ManageClubsScreen> with SingleTicker
                     return ListTile(
                       leading: CircleAvatar(
                         backgroundColor: Colors.orange.shade200,
-                        child: const Icon(Icons.hourglass_top, color: Colors.white),
+                        child: const Icon(
+                          Icons.hourglass_top,
+                          color: Colors.white,
+                        ),
                       ),
                       title: Text(club.name),
                       subtitle: Text("${club.category} - Pending Approval"),
@@ -325,7 +516,11 @@ class _ManageClubsScreenState extends State<ManageClubsScreen> with SingleTicker
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.check_circle, color: Colors.green, size: 30),
+                            icon: const Icon(
+                              Icons.check_circle,
+                              color: Colors.green,
+                              size: 30,
+                            ),
                             tooltip: "Approve",
                             onPressed: () => _approveClub(club),
                           ),

@@ -29,12 +29,58 @@ namespace Application.Services
         {
             var account = await _accountRepository.GetByPhoneNumberAsync(request.Phone);
 
-           
             if (account == null || !BCrypt.Net.BCrypt.Verify(request.Password, account.PasswordHash))
             {
                 throw new UnauthorizedException("Tài khoản hoặc mật khẩu không chính xác.");
             }
 
+            // === 2FA CHECK ===
+            if (account.TwoFactorEnabled)
+            {
+                // Gửi OTP qua email (tận dụng lại SendOtpAsync)
+                await SendOtpAsync(account.PhoneNumber);
+
+                // Trả về response đặc biệt: không có token, yêu cầu nhập OTP
+                return new AuthResponseDto
+                {
+                    RequiresTwoFactor = true,
+                    PhoneNumber = account.PhoneNumber,
+                    FullName = account.Student?.FullName ?? account.Staff?.FullName ?? "",
+                    AccessToken = "",
+                    Role = ""
+                };
+            }
+
+            // === Không bật 2FA → trả token bình thường ===
+            return BuildAuthResponse(account);
+        }
+
+        public async Task<AuthResponseDto> Verify2faAsync(Verify2faRequestDto request)
+        {
+            // 1. Kiểm tra OTP từ cache
+            if (!_cache.TryGetValue($"OTP_{request.PhoneNumber}", out string? savedOtp))
+            {
+                throw new BadRequestException("Mã OTP đã hết hạn hoặc không tồn tại.");
+            }
+
+            if (savedOtp != request.OtpCode)
+            {
+                throw new BadRequestException("Mã OTP không chính xác.");
+            }
+
+            // 2. OTP đúng → lấy account và tạo token
+            var account = await _accountRepository.GetByPhoneNumberAsync(request.PhoneNumber);
+            if (account == null) throw new NotFoundException("Tài khoản không tồn tại.");
+
+            // 3. Xóa OTP khỏi cache
+            _cache.Remove($"OTP_{request.PhoneNumber}");
+
+            // 4. Trả token đầy đủ
+            return BuildAuthResponse(account);
+        }
+
+        private AuthResponseDto BuildAuthResponse(Account account)
+        {
             var token = _tokenService.GenerateJwtToken(account);
 
             return new AuthResponseDto
@@ -44,7 +90,7 @@ namespace Application.Services
                 RollNumber = account.Student?.RollNumber,
                 EmployeeId = account.Staff?.EmployeeId,
                 Department = account.Staff?.Department,
-                FullName = account.Student?.FullName ?? account.Staff?.FullName,
+                FullName = account.Student?.FullName ?? account.Staff?.FullName ?? "",
                 Role = account.Roles != null && account.Roles.Any() ? string.Join(",", account.Roles.Select(r => r.RoleName)) : "Unknown",
                 ClassId = account.Student?.SchoolClasses?.FirstOrDefault()?.Id,
                 StudentId = account.Student?.Id,
@@ -88,7 +134,7 @@ namespace Application.Services
             // 2. Lưu OTP vào Cache với Key là số điện thoại
             // Thời gian sống (SlidingExpiration): 5 phút
             var cacheOptions = new MemoryCacheEntryOptions()
-                .SetAbsoluteExpiration(TimeSpan.FromSeconds(20));
+                .SetAbsoluteExpiration(TimeSpan.FromSeconds(300)); // 5 phút
 
             _cache.Set($"OTP_{phoneNumber}", otp, cacheOptions);
 

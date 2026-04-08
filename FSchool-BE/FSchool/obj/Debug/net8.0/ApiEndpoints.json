@@ -128,6 +128,22 @@
   },
   {
     "ContainingType": "FSchool.Controllers.AuthController",
+    "Method": "Get2faStatus",
+    "RelativePath": "api/Auth/2fa-status",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "accountId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FSchool.Controllers.AuthController",
     "Method": "ResetPassword",
     "RelativePath": "api/Auth/forgot-password/reset",
     "HttpMethod": "POST",
@@ -137,22 +153,6 @@
       {
         "Name": "request",
         "Type": "Application.DTOs.Auth.VerifyOtpRequest",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "FSchool.Controllers.AuthController",
-    "Method": "SendOtp",
-    "RelativePath": "api/Auth/forgot-password/send-otp",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "request",
-        "Type": "Application.DTOs.Auth.SendOtpRequest",
         "IsRequired": true
       }
     ],
@@ -198,6 +198,54 @@
     "IsController": true,
     "Order": 0,
     "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FSchool.Controllers.AuthController",
+    "Method": "SendOtp",
+    "RelativePath": "api/Auth/send-otp",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Application.DTOs.Auth.SendOtpRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FSchool.Controllers.AuthController",
+    "Method": "Toggle2fa",
+    "RelativePath": "api/Auth/toggle-2fa",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "accountId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FSchool.Controllers.AuthController",
+    "Method": "Verify2fa",
+    "RelativePath": "api/Auth/verify-2fa",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Application.DTOs.Auth.Verify2faRequestDto",
+        "IsRequired": true
+      }
+    ],
     "ReturnTypes": []
   },
   {
@@ -1272,6 +1320,22 @@
         "StatusCode": 200
       }
     ]
+  },
+  {
+    "ContainingType": "FSchool.Controllers.UploadController",
+    "Method": "UploadImage",
+    "RelativePath": "api/Upload",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "file",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
   },
   {
     "ContainingType": "FSchool.Controllers.WeatherForecastController",

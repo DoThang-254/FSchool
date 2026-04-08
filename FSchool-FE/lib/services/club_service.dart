@@ -1,3 +1,4 @@
+import 'package:bai1/services/api_client.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:bai1/config/api_config.dart';
@@ -6,7 +7,7 @@ import 'package:bai1/models/student_club_member.dart';
 
 class ClubService {
   Future<List<Club>> getClubs() async {
-    final response = await http.get(Uri.parse(ApiConfig.getClubs));
+    final response = await ApiClient.get(Uri.parse(ApiConfig.getClubs));
 
     if (response.statusCode == 200) {
       Iterable list = json.decode(response.body);
@@ -17,7 +18,7 @@ class ClubService {
   }
 
   Future<List<Club>> getPendingClubs() async {
-    final response = await http.get(Uri.parse(ApiConfig.pendingClubs));
+    final response = await ApiClient.get(Uri.parse(ApiConfig.pendingClubs));
 
     if (response.statusCode == 200) {
       Iterable list = json.decode(response.body);
@@ -28,7 +29,7 @@ class ClubService {
   }
 
   Future<List<Club>> getAllClubs() async {
-    final response = await http.get(Uri.parse(ApiConfig.allClubs));
+    final response = await ApiClient.get(Uri.parse(ApiConfig.allClubs));
 
     if (response.statusCode == 200) {
       Iterable list = json.decode(response.body);
@@ -39,7 +40,7 @@ class ClubService {
   }
 
   Future<bool> createClub(Map<String, dynamic> clubData) async {
-    final response = await http.post(
+    final response = await ApiClient.post(
       Uri.parse(ApiConfig.getClubs),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(clubData),
@@ -48,7 +49,7 @@ class ClubService {
   }
 
   Future<bool> proposeClub(Map<String, dynamic> clubData) async {
-    final response = await http.post(
+    final response = await ApiClient.post(
       Uri.parse(ApiConfig.proposeClub),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(clubData),
@@ -57,21 +58,21 @@ class ClubService {
   }
 
   Future<bool> approveClub(int id) async {
-    final response = await http.put(
+    final response = await ApiClient.put(
       Uri.parse("${ApiConfig.getClubs}/$id/approve"),
     );
     return response.statusCode == 200;
   }
 
   Future<bool> deactivateClub(int id) async {
-    final response = await http.put(
+    final response = await ApiClient.put(
       Uri.parse("${ApiConfig.getClubs}/$id/deactivate"),
     );
     return response.statusCode == 200;
   }
 
   Future<bool> updateClub(int id, Map<String, dynamic> clubData) async {
-    final response = await http.put(
+    final response = await ApiClient.put(
       Uri.parse("${ApiConfig.getClubs}/$id"),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(clubData),
@@ -80,21 +81,21 @@ class ClubService {
   }
 
   Future<bool> deleteClub(int id) async {
-    final response = await http.delete(Uri.parse("${ApiConfig.getClubs}/$id"));
+    final response = await ApiClient.delete(Uri.parse("${ApiConfig.getClubs}/$id"));
     return response.statusCode == 200;
   }
 
   // ==================== MEMBER MANAGEMENT ====================
 
   Future<bool> joinClub(int clubId, int studentId) async {
-    final response = await http.post(
+    final response = await ApiClient.post(
       Uri.parse("${ApiConfig.getClubs}/$clubId/join?studentId=$studentId"),
     );
     return response.statusCode == 200;
   }
 
   Future<List<StudentClubMember>> getMembers(int clubId) async {
-    final response = await http.get(
+    final response = await ApiClient.get(
       Uri.parse("${ApiConfig.getClubs}/$clubId/members"),
     );
 
@@ -107,7 +108,7 @@ class ClubService {
   }
 
   Future<List<StudentClubMember>> getPendingMembers(int clubId) async {
-    final response = await http.get(
+    final response = await ApiClient.get(
       Uri.parse("${ApiConfig.getClubs}/$clubId/members/pending"),
     );
 
@@ -120,21 +121,21 @@ class ClubService {
   }
 
   Future<bool> approveMember(int clubId, int studentId) async {
-    final response = await http.put(
+    final response = await ApiClient.put(
       Uri.parse("${ApiConfig.getClubs}/$clubId/members/$studentId/approve"),
     );
     return response.statusCode == 200;
   }
 
   Future<bool> rejectMember(int clubId, int studentId) async {
-    final response = await http.put(
+    final response = await ApiClient.put(
       Uri.parse("${ApiConfig.getClubs}/$clubId/members/$studentId/reject"),
     );
     return response.statusCode == 200;
   }
 
   Future<bool> assignRole(int clubId, int studentId, String role) async {
-    final response = await http.put(
+    final response = await ApiClient.put(
       Uri.parse("${ApiConfig.getClubs}/$clubId/members/$studentId/role"),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({"role": role}),
@@ -143,14 +144,14 @@ class ClubService {
   }
 
   Future<bool> leaveClub(int clubId, int studentId) async {
-    final response = await http.put(
+    final response = await ApiClient.put(
       Uri.parse("${ApiConfig.getClubs}/$clubId/members/$studentId/leave"),
     );
     return response.statusCode == 200;
   }
 
   Future<Map<String, dynamic>> getMyStatus(int clubId, int studentId) async {
-    final response = await http.get(
+    final response = await ApiClient.get(
       Uri.parse("${ApiConfig.getClubs}/$clubId/my-status?studentId=$studentId"),
     );
 

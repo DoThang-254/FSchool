@@ -128,19 +128,26 @@ class _ReportScreenState extends State<ReportScreen> {
       statusIcon = Icons.cancel;
     }
 
-    // Parse date for display
-    String displayDate = '';
-    try {
-      DateTime parsedDate = DateTime.parse(item.date);
-      displayDate =
-          '${parsedDate.day.toString().padLeft(2, '0')}/${parsedDate.month.toString().padLeft(2, '0')}/${parsedDate.year}';
-    } catch (_) {
-      displayDate = item.date;
+    // Parse dates for display
+    String absenceDate = '';
+    String createdDate = '';
+    
+    String formatDate(String? dateStr) {
+      if (dateStr == null || dateStr.isEmpty) return 'N/A';
+      try {
+        DateTime parsedDate = DateTime.parse(dateStr);
+        return '${parsedDate.day.toString().padLeft(2, '0')}/${parsedDate.month.toString().padLeft(2, '0')}/${parsedDate.year}';
+      } catch (_) {
+        return dateStr;
+      }
     }
+
+    absenceDate = formatDate(item.date);
+    createdDate = formatDate(item.createdDate);
 
     // Build slot names for duration info
     String slotInfo = item.slots.isNotEmpty
-        ? item.slots.map((s) => s.slotName).join(', ')
+        ? item.slots.map((s) => "${s.slotName} (${s.startTime}-${s.endTime})").join('\n')
         : 'N/A';
 
     return Container(
@@ -224,12 +231,14 @@ class _ReportScreenState extends State<ReportScreen> {
           Divider(color: Colors.grey.shade100, height: 1),
           const SizedBox(height: 12),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildInfoColumn("Slots", slotInfo),
-              _buildInfoColumn("Date", displayDate),
+              Expanded(child: _buildInfoColumn("Date Off", absenceDate)),
+              Expanded(child: _buildInfoColumn("Created Date", createdDate)),
             ],
           ),
+          const SizedBox(height: 12),
+          _buildInfoColumn("Slots", slotInfo),
           if (item.reason.isNotEmpty) ...[
             const SizedBox(height: 12),
             Container(
@@ -268,7 +277,7 @@ class _ReportScreenState extends State<ReportScreen> {
                     }
                   },
                   icon: const Icon(Icons.edit, size: 16),
-                  label: const Text("Sửa"),
+                  label: const Text("Edit"),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.blue,
                     side: const BorderSide(color: Colors.blue),
@@ -281,7 +290,7 @@ class _ReportScreenState extends State<ReportScreen> {
                 OutlinedButton.icon(
                   onPressed: () => _showDeleteConfirmation(item.id),
                   icon: const Icon(Icons.delete, size: 16),
-                  label: const Text("Xóa"),
+                  label: const Text("Delete"),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.red,
                     side: const BorderSide(color: Colors.red),
@@ -302,12 +311,12 @@ class _ReportScreenState extends State<ReportScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Xác nhận xóa"),
-        content: const Text("Bạn có chắc chắn muốn xóa đơn nghỉ này không?"),
+        title: const Text("Confirm Delete"),
+        content: const Text("Are you sure you want to delete this request?"),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Hủy"),
+            child: const Text("Cancel"),
           ),
           TextButton(
             onPressed: () async {
@@ -319,11 +328,11 @@ class _ReportScreenState extends State<ReportScreen> {
               } else {
                 setState(() => _isLoading = false);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Xóa thất bại")),
+                  const SnackBar(content: Text("Delete failed")),
                 );
               }
             },
-            child: const Text("Xóa", style: TextStyle(color: Colors.red)),
+            child: const Text("Delete", style: TextStyle(color: Colors.red)),
           ),
         ],
       ),

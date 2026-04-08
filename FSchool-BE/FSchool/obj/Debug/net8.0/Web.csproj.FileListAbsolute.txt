@@ -310,4 +310,10 @@ D:\Mobile\Git\FSchool-BE\FSchool\bin\Debug\net8.0\Google.Apis.Core.dll
 D:\Mobile\Git\FSchool-BE\FSchool\bin\Debug\net8.0\Newtonsoft.Json.dll
 D:\Mobile\Git\FSchool-BE\FSchool\bin\Debug\net8.0\System.Management.dll
 D:\Mobile\Git\FSchool-BE\FSchool\bin\Debug\net8.0\runtimes\win\lib\net7.0\System.Management.dll
+D:\Mobile\Git\FSchool-BE\FSchool\bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+D:\Mobile\Git\FSchool-BE\FSchool\bin\Debug\net8.0\Microsoft.Extensions.Logging.Abstractions.dll
+D:\Mobile\Git\FSchool-BE\FSchool\bin\Debug\net8.0\Microsoft.Extensions.Options.dll
+D:\Mobile\Git\FSchool-BE\FSchool\bin\Debug\net8.0\Microsoft.Extensions.Primitives.dll
+D:\Mobile\Git\FSchool-BE\FSchool\bin\Debug\net8.0\System.Diagnostics.DiagnosticSource.dll
+D:\Mobile\Git\FSchool-BE\FSchool\bin\Debug\net8.0\Web.staticwebassets.runtime.json
 D:\Mobile\Git\FSchool-BE\FSchool\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

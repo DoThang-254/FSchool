@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,7 @@ namespace FSchool.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class SchedulesController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -80,6 +82,13 @@ namespace FSchool.Controllers
             var schedules = new List<Schedule>();
             var currentDate = dto.StartDate.Date;
             int sessionsCreated = 0;
+            int skippedConflicts = 0;
+
+            // Fetch existing schedules for conflict checking (within a safe range, e.g., next 1 year)
+            var existingSchedules = await _context.Schedules
+                .Where(s => s.Date.Date >= dto.StartDate.Date)
+                .Select(s => new { s.Date, s.SlotId, s.RoomId, s.StaffId, s.ClassId })
+                .ToListAsync();
 
             while (sessionsCreated < dto.TotalSessions)
             {
@@ -92,6 +101,18 @@ namespace FSchool.Controllers
                     foreach (var slotId in dto.SlotIds)
                     {
                         if (sessionsCreated >= dto.TotalSessions) break;
+
+                        // Check conflict in memory
+                        var hasConflict = existingSchedules.Any(s =>
+                            s.Date.Date == currentDate.Date &&
+                            s.SlotId == slotId &&
+                            (s.RoomId == dto.RoomId || s.StaffId == dto.StaffId || s.ClassId == dto.ClassId));
+
+                        if (hasConflict)
+                        {
+                            skippedConflicts++;
+                            continue;
+                        }
 
                         schedules.Add(new Schedule
                         {
@@ -114,12 +135,36 @@ namespace FSchool.Controllers
             _context.Schedules.AddRange(schedules);
             await _context.SaveChangesAsync();
 
-            return Ok(new { message = $"Đã tạo thành công {schedules.Count} buổi học.", count = schedules.Count });
+            var respMessage = $"Đã tạo thành công {schedules.Count} buổi học.";
+            if (skippedConflicts > 0)
+            {
+                respMessage += $" Bỏ qua {skippedConflicts} buổi bị trùng lịch.";
+            }
+
+            return Ok(new { message = respMessage, count = schedules.Count, skipped = skippedConflicts });
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateSchedule([FromBody] ScheduleCreateUpdateDto dto)
         {
+            // Kiểm tra trùng lịch
+            var conflict = await _context.Schedules
+                .Where(s => s.Date.Date == dto.Date.Date && s.SlotId == dto.SlotId)
+                .Where(s => s.RoomId == dto.RoomId || s.StaffId == dto.StaffId || s.ClassId == dto.ClassId)
+                .Select(s => new { 
+                    IsRoomConflict = s.RoomId == dto.RoomId,
+                    IsStaffConflict = s.StaffId == dto.StaffId,
+                    IsClassConflict = s.ClassId == dto.ClassId
+                })
+                .FirstOrDefaultAsync();
+
+            if (conflict != null)
+            {
+                if (conflict.IsRoomConflict) return BadRequest("Phòng học đã được sử dụng trong tiết này.");
+                if (conflict.IsStaffConflict) return BadRequest("Giáo viên đã có lịch dạy trong tiết này.");
+                if (conflict.IsClassConflict) return BadRequest("Lớp học đã có lịch học trong tiết này.");
+            }
+
             var schedule = new Schedule
             {
                 Date = dto.Date,
@@ -140,6 +185,24 @@ namespace FSchool.Controllers
         {
             var schedule = await _context.Schedules.FindAsync(id);
             if (schedule == null) return NotFound("Không tìm thấy lịch học.");
+
+            // Kiểm tra trùng lịch khi sửa (loại trừ chính nó)
+            var conflict = await _context.Schedules
+                .Where(s => s.Id != id && s.Date.Date == dto.Date.Date && s.SlotId == dto.SlotId)
+                .Where(s => s.RoomId == dto.RoomId || s.StaffId == dto.StaffId || s.ClassId == dto.ClassId)
+                .Select(s => new {
+                    IsRoomConflict = s.RoomId == dto.RoomId,
+                    IsStaffConflict = s.StaffId == dto.StaffId,
+                    IsClassConflict = s.ClassId == dto.ClassId
+                })
+                .FirstOrDefaultAsync();
+
+            if (conflict != null)
+            {
+                if (conflict.IsRoomConflict) return BadRequest("Phòng học đã được sử dụng trong tiết này.");
+                if (conflict.IsStaffConflict) return BadRequest("Giáo viên đã có lịch dạy trong tiết này.");
+                if (conflict.IsClassConflict) return BadRequest("Lớp học đã có lịch học trong tiết này.");
+            }
 
             schedule.Date = dto.Date;
             schedule.SlotId = dto.SlotId;

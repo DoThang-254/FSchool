@@ -1,3 +1,4 @@
+import 'package:bai1/services/api_client.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../config/api_config.dart';
@@ -13,7 +14,7 @@ class AdminService {
     String? employeeId,
     String? department,
   }) async {
-    final response = await http.post(
+    final response = await ApiClient.post(
       Uri.parse('${ApiConfig.baseUrl}/Admin/create-account'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({

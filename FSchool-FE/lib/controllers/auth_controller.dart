@@ -8,8 +8,11 @@ class AuthController {
 
   Future<AuthResponse> login(String phone, String password) async {
     final request = LoginRequest(phone: phone, password: password);
-
     return await _authService.login(request);
+  }
+
+  Future<AuthResponse> verify2fa(String phoneNumber, String otpCode) async {
+    return await _authService.verify2fa(phoneNumber, otpCode);
   }
 
   Future<bool> sendOtp(String phoneNumber) async {

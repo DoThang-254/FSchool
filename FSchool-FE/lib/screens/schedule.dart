@@ -12,10 +12,10 @@ class ScheduleScreen extends StatefulWidget {
 }
 
 class _ScheduleScreenState extends State<ScheduleScreen> {
-  // Ngày đang chọn (Mặc định là hôm nay)
+  // Selected date (Default is today)
   DateTime _selectedDate = DateTime.now();
 
-  // Tuần hiện tại đang hiển thị
+  // Currently displayed week
   late DateTime _weekStart; // Monday
   late List<DateTime> _weekDays;
 
@@ -50,7 +50,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     _setWeek(DateTime.now());
   }
 
-  /// Tính Monday của tuần chứa [date]
+  /// Calculate Monday of the week containing [date]
   void _setWeek(DateTime date) {
     // weekday: Monday=1, Sunday=7
     _weekStart = date.subtract(Duration(days: date.weekday - 1));
@@ -120,7 +120,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     }).toList();
   }
 
-  /// Format header hiển thị tuần: "09 Mar - 15 Mar 2026"
+  /// Format week header: "09 Mar - 15 Mar 2026"
   String _weekHeader() {
     final from = _weekDays.first;
     final to = _weekDays.last;
@@ -136,7 +136,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     }
   }
 
-  /// Kiểm tra xem tuần đang xem có phải tuần hiện tại
+  /// Check if the viewed week is the current week
   bool _isCurrentWeek() {
     final now = DateTime.now();
     final currentMonday = now.subtract(Duration(days: now.weekday - 1));
@@ -256,7 +256,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun',
                   ];
 
-                  // Đếm số tiết trong ngày này
+                  // Count slots for this day
                   int classCount = _getClassesForDay(date).length;
 
                   return GestureDetector(
@@ -310,7 +310,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                               color: isSelected ? Colors.white : Colors.black87,
                             ),
                           ),
-                          // Dot indicator cho ngày có lịch
+                          // Dot indicator for days with schedule
                           if (classCount > 0 && !isSelected)
                             Container(
                               margin: const EdgeInsets.only(top: 4),
@@ -374,7 +374,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     );
   }
 
-  // Widget hiển thị từng tiết học
+  // Widget for displaying each class slot
   Widget _buildClassCard(Schedule classInfo) {
     Color statusColor = Colors.grey;
     Color cardBg = Colors.white;

@@ -89,11 +89,8 @@ class Signup extends StatelessWidget {
                   ),
 
                   ElevatedButton(
-                    style: OutlinedButton.styleFrom(
-                      backgroundColor: Colors.blue[900],
-                    ),
                     onPressed: () {},
-                    child: Text(
+                    child: const Text(
                       "Create Account",
                       style: TextStyle(color: Colors.white),
                     ),

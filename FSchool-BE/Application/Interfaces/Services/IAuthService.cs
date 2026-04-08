@@ -11,6 +11,7 @@ namespace Application.Interfaces.Services
     public interface IAuthService
     {
         Task<AuthResponseDto> LoginAsync(LoginRequestDto request);
+        Task<AuthResponseDto> Verify2faAsync(Verify2faRequestDto request);
         Task SendOtpAsync(string phoneNumber);
         Task ResetPasswordAsync(VerifyOtpRequest request);
         Task LogoutAsync();

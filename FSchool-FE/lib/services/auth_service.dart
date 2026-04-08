@@ -1,15 +1,18 @@
 import 'dart:convert';
+import 'package:bai1/services/api_client.dart';
+import 'package:bai1/services/session_manager.dart';
 
 import 'package:bai1/config/api_config.dart';
 import 'package:bai1/models/auth_response.dart';
 import 'package:bai1/models/login_request.dart';
 import 'package:bai1/models/reset_password_request.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:http/http.dart' as http;
 
 class AuthService {
   Future<AuthResponse> login(LoginRequest request) async {
-    final response = await http.post(
+    final response = await ApiClient.post(
       Uri.parse(ApiConfig.login),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode(request.toJson()),
@@ -17,15 +20,45 @@ class AuthService {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      return AuthResponse.fromJson(data);
+      final authResponse = AuthResponse.fromJson(data);
+
+      if (!authResponse.requiresTwoFactor) {
+        await SessionManager().saveSession(authResponse, data);
+      }
+
+      return authResponse;
     } else {
       throw Exception("Login failed");
     }
   }
 
+  // Xác minh OTP cho 2FA
+  Future<AuthResponse> verify2fa(String phoneNumber, String otpCode) async {
+    final response = await ApiClient.post(
+      Uri.parse('${ApiConfig.baseUrl}/Auth/verify-2fa'),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        'phoneNumber': phoneNumber,
+        'otpCode': otpCode,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final authResponse = AuthResponse.fromJson(data);
+      
+      await SessionManager().saveSession(authResponse, data);
+
+      return authResponse;
+    } else {
+      final error = jsonDecode(response.body);
+      throw Exception(error['Message'] ?? 'Xác minh OTP thất bại.');
+    }
+  }
+
   Future<bool> sendOtp(String phoneNumber) async {
-    final response = await http.post(
-      Uri.parse('${ApiConfig.baseUrl}/auth/forgot-password/send-otp'),
+    final response = await ApiClient.post(
+      Uri.parse('${ApiConfig.baseUrl}/Auth/send-otp'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'phoneNumber': phoneNumber}),
     );
@@ -41,7 +74,7 @@ class AuthService {
 
   // 2. Reset mật khẩu
   Future<bool> resetPassword(ResetPasswordRequest request) async {
-    final response = await http.post(
+    final response = await ApiClient.post(
       Uri.parse('${ApiConfig.baseUrl}/auth/forgot-password/reset'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(request.toJson()),
@@ -57,7 +90,7 @@ class AuthService {
   }
 
   Future<void> logout() async {
-    final response = await http.post(
+    final response = await ApiClient.post(
       Uri.parse(ApiConfig.logout),
       headers: {"Content-Type": "application/json"},
     );
@@ -65,6 +98,7 @@ class AuthService {
     if (response.statusCode != 200) {
       print("Logout API call failed");
     }
+    await SessionManager().clearSession();
     return;
   }
 }

@@ -1,10 +1,11 @@
+import 'package:bai1/services/api_client.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../config/api_config.dart';
 
 class ClassService {
   Future<List<Map<String, dynamic>>> getClasses() async {
-    final response = await http.get(Uri.parse('${ApiConfig.baseUrl}/Classes'));
+    final response = await ApiClient.get(Uri.parse('${ApiConfig.baseUrl}/Classes'));
     if (response.statusCode == 200) {
       List list = jsonDecode(response.body);
       return list.map((e) => e as Map<String, dynamic>).toList();
@@ -14,7 +15,7 @@ class ClassService {
   }
 
   Future<List<Map<String, dynamic>>> getStudentsInClass(int classId) async {
-    final response = await http.get(Uri.parse('${ApiConfig.baseUrl}/Classes/$classId/students'));
+    final response = await ApiClient.get(Uri.parse('${ApiConfig.baseUrl}/Classes/$classId/students'));
     if (response.statusCode == 200) {
       List list = jsonDecode(response.body);
       return list.map((e) => e as Map<String, dynamic>).toList();
@@ -27,7 +28,7 @@ class ClassService {
     required String className,
     required String academicYear,
   }) async {
-    final response = await http.post(
+    final response = await ApiClient.post(
       Uri.parse('${ApiConfig.baseUrl}/Classes'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
@@ -47,7 +48,7 @@ class ClassService {
     required String className,
     required String academicYear,
   }) async {
-    final response = await http.put(
+    final response = await ApiClient.put(
       Uri.parse('${ApiConfig.baseUrl}/Classes/$classId'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
@@ -63,7 +64,7 @@ class ClassService {
   }
 
   Future<void> deleteClass(int classId) async {
-    final response = await http.delete(
+    final response = await ApiClient.delete(
       Uri.parse('${ApiConfig.baseUrl}/Classes/$classId'),
     );
 

@@ -1,4 +1,5 @@
 import 'package:bai1/controllers/auth_controller.dart';
+import 'package:bai1/screens/otp_verification.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -29,20 +30,33 @@ class _LoginScreenState extends State<LoginScreen> {
         _passwordController.text.trim(),
       );
 
-      debugPrint(
-        "=====> API THÀNH CÔNG! ClassId là: ${response.role}",
-      ); // Log 2
       if (!mounted) return;
-      Navigator.pushNamed(
-        context,
-        '/home',
-        arguments: response, // Gửi data đi
-      );
+
+      // === 2FA CHECK ===
+      if (response.requiresTwoFactor) {
+        // Mật khẩu đúng nhưng cần OTP → chuyển sang màn hình nhập OTP
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OtpVerificationScreen(
+              phoneNumber: response.phoneNumber ?? _phoneController.text.trim(),
+              fullName: response.fullName,
+            ),
+          ),
+        );
+      } else {
+        // Không cần 2FA → vào thẳng home
+        Navigator.pushNamed(
+          context,
+          '/home',
+          arguments: response,
+        );
+      }
     } catch (e) {
-      debugPrint("=====> LỖI RỒI: $e"); // Log 3
+      debugPrint("=====> LỖI RỒI: $e");
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Sai tài khoản hoặc mật khẩu")),
+        const SnackBar(content: Text("Invalid phone number or password")),
       );
     } finally {
       if (mounted) setState(() => _isLoading = false);
